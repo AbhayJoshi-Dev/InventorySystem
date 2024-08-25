@@ -75,3 +75,5 @@ Plugins/**/Intermediate/*
 DerivedDataCache/*
 
 *.editorconfig
+
+Content/Infinity_Blade_Assets*
