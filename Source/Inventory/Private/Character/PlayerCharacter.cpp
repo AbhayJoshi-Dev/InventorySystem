@@ -85,27 +85,84 @@ void APlayerCharacter::PerformInteractionCheck()
 
 void APlayerCharacter::FoundInteractable(AActor* NewInteractable)
 {
+	if (IsInteracting())
+	{
+		EndInteract();
+	}
+
+	if (InteractionData.CurrentInteractable)
+	{
+		TargetInteractable = InteractionData.CurrentInteractable;
+		TargetInteractable->EndFocus();
+	}
+
+	InteractionData.CurrentInteractable = NewInteractable;
+	TargetInteractable = NewInteractable;
+
+	TargetInteractable->BeginFocus();
 
 }
 
 void APlayerCharacter::NoInteractableFound()
 {
+	if(IsInteracting())
+	{
+		GetWorldTimerManager().ClearTimer(TimerHandle_Interaction);
+	}
 
+	if(InteractionData.CurrentInteractable)
+	{
+		if(IsValid(TargetInteractable.GetObject()))
+		{
+			TargetInteractable->EndFocus();
+		}
+	}
+
+	// hide interaction widget on the HUD
+
+	InteractionData.CurrentInteractable = nullptr;
+	TargetInteractable = nullptr;
 }
 
 void APlayerCharacter::BeginInteract()
 {
+	// verify nothing has changed with the interactable 
+	PerformInteractionCheck();
 
+	if (!InteractionData.CurrentInteractable) return;
+
+	if (!IsValid(TargetInteractable.GetObject())) return;
+
+	TargetInteractable->BeginInteract();
+
+	if (FMath::IsNearlyZero(TargetInteractable->InteractableData.InteractionDuration, 0.1f))
+	{
+		Interact();
+	}
+	else
+	{
+		GetWorldTimerManager().SetTimer(TimerHandle_Interaction, this, &APlayerCharacter::Interact, TargetInteractable->InteractableData.InteractionDuration);
+	}
 }
 
 void APlayerCharacter::EndInteract()
 {
+	GetWorldTimerManager().ClearTimer(TimerHandle_Interaction);
 
+	if(IsValid(TargetInteractable.GetObject()))
+	{
+		TargetInteractable->EndInteract();
+	}
 }
 
 void APlayerCharacter::Interact()
 {
+	GetWorldTimerManager().ClearTimer(TimerHandle_Interaction);
 
+	if(IsValid(TargetInteractable.GetObject()))
+	{
+		TargetInteractable->Interact();
+	}
 }
 
 void APlayerCharacter::Tick(float DeltaTime)
@@ -128,6 +185,10 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(LookInputAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Look);
 
 		EnhancedInputComponent->BindAction(JumpInputAction, ETriggerEvent::Started, this, &ACharacter::Jump);
+
+		EnhancedInputComponent->BindAction(InteractInputAction, ETriggerEvent::Started, this, &APlayerCharacter::BeginInteract);
+
+		EnhancedInputComponent->BindAction(InteractInputAction, ETriggerEvent::Completed, this, &APlayerCharacter::EndInteract);
 	}
 }
 

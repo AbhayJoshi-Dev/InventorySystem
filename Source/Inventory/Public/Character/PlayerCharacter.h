@@ -43,6 +43,8 @@ public:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	FORCEINLINE bool IsInteracting() const { return GetWorldTimerManager().IsTimerActive(TimerHandle_Interaction); }
+
 protected:
 
 	virtual void BeginPlay() override;
@@ -88,4 +90,7 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* JumpInputAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* InteractInputAction;
 };
