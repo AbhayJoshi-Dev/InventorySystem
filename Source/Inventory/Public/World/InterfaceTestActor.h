@@ -23,6 +23,9 @@ protected:
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* StaticMesh;
 
+	UPROPERTY(EditInstanceOnly, Category = "Test Actor")
+	FInteractableData InstanceInteractableData;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -31,6 +34,6 @@ public:
 	void EndFocus() override;
 	void BeginInteract() override;
 	void EndInteract() override;
-	void Interact() override;
+	void Interact(APlayerCharacter* PlayerCharacter) override;
 
 };

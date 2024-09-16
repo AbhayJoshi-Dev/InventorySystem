@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerController.h"
 #include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
+#include "UserInterface/InventoryHUD.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -31,7 +32,9 @@ void APlayerCharacter::BeginPlay()
 		{
 			Subsystem->AddMappingContext(InputMappingContext, 0);
 		}
-	}	
+	}
+
+	HUD = Cast<AInventoryHUD>(GetWorld()->GetFirstPlayerController()->GetHUD());
 }
 
 void APlayerCharacter::Move(const FInputActionValue& Value)
@@ -67,9 +70,7 @@ void APlayerCharacter::PerformInteractionCheck()
 	{
 		if (HitResult.GetActor()->GetClass()->ImplementsInterface(UInteractionInterface::StaticClass()))
 		{
-			const float Distance = (TraceStart - HitResult.ImpactPoint).Size();
-
-			if(HitResult.GetActor() != InteractionData.CurrentInteractable && Distance <= InteractionCheckDistance)
+			if(HitResult.GetActor() != InteractionData.CurrentInteractable)
 			{
 				FoundInteractable(HitResult.GetActor());
 				return;	
@@ -99,6 +100,8 @@ void APlayerCharacter::FoundInteractable(AActor* NewInteractable)
 	InteractionData.CurrentInteractable = NewInteractable;
 	TargetInteractable = NewInteractable;
 
+	HUD->UpdateInteractionWidget(&TargetInteractable->InteractableData);
+
 	TargetInteractable->BeginFocus();
 
 }
@@ -118,7 +121,7 @@ void APlayerCharacter::NoInteractableFound()
 		}
 	}
 
-	// hide interaction widget on the HUD
+	HUD->HideInteractionWidget();
 
 	InteractionData.CurrentInteractable = nullptr;
 	TargetInteractable = nullptr;
@@ -161,7 +164,7 @@ void APlayerCharacter::Interact()
 
 	if(IsValid(TargetInteractable.GetObject()))
 	{
-		TargetInteractable->Interact();
+		TargetInteractable->Interact(this);
 	}
 }
 

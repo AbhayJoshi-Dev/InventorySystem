@@ -11,6 +11,7 @@ class UCameraComponent;
 class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
+class AInventoryHUD;
 
 USTRUCT()
 struct FInteractionData
@@ -62,6 +63,9 @@ protected:
 	void Interact();
 
 protected:
+
+	UPROPERTY()
+	AInventoryHUD* HUD;
 
 	UPROPERTY(VisibleAnywhere, Category = "Character | Interaction")
 	TScriptInterface<IInteractionInterface> TargetInteractable;

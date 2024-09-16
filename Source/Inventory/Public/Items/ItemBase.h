@@ -19,28 +19,28 @@ public:
 	/*UPROPERTY()
 	UInventoryComponent* OwningComponent;*/
 
-	UPROPERTY(VisibleAnywhere, Category = "Item Data", meta = (UMin = 1, UMax = 100))
+	UPROPERTY(VisibleAnywhere, Category = "Item Data")
 	int32 Quantity;
 
-	UPROPERTY(EditAnywhere, Category = "Item Data")
+	UPROPERTY(VisibleAnywhere, Category = "Item Data")
 	FName ID;
 
-	UPROPERTY(EditAnywhere, Category = "Item Data")
+	UPROPERTY(VisibleAnywhere, Category = "Item Data")
 	EItemType ItemType;
 
-	UPROPERTY(EditAnywhere, Category = "Item Data")
+	UPROPERTY(VisibleAnywhere, Category = "Item Data")
 	EItemQuality ItemQuality;
 
-	UPROPERTY(EditAnywhere, Category = "Item Data")
+	UPROPERTY(VisibleAnywhere, Category = "Item Data")
 	FItemStatistics ItemStatistics;
 
-	UPROPERTY(EditAnywhere, Category = "Item Data")
+	UPROPERTY(VisibleAnywhere, Category = "Item Data")
 	FItemTextData ItemTextData;
 
-	UPROPERTY(EditAnywhere, Category = "Item Data")
+	UPROPERTY(VisibleAnywhere, Category = "Item Data")
 	FItemNumericData ItemNumericData;
 
-	UPROPERTY(EditAnywhere, Category = "Item Data")
+	UPROPERTY(VisibleAnywhere, Category = "Item Data")
 	FItemAssetData ItemAssetData;
 
 	UItemBase();
