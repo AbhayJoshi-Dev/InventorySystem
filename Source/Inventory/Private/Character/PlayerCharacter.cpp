@@ -8,6 +8,7 @@
 #include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
 #include "UserInterface/InventoryHUD.h"
+#include "Components/InventoryComponent.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -17,9 +18,21 @@ APlayerCharacter::APlayerCharacter()
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera Component"));
 	CameraComponent->SetupAttachment(GetRootComponent());
 
+	PlayerInventory = CreateDefaultSubobject<UInventoryComponent>(TEXT("PlayerInventory"));
+	PlayerInventory->SetSlotsCapacity(20);
+	PlayerInventory->SetWeightCapacity(50.0f);
+
 
 	InteractionCheckDistance = 250.0f;
 	InteractionCheckFrequency = 0.1f;
+}
+
+void APlayerCharacter::UpdateInteractionWidget() const
+{
+	if (IsValid(TargetInteractable.GetObject()))
+	{
+		HUD->UpdateInteractionWidget(&TargetInteractable->InteractableData);
+	}
 }
 
 void APlayerCharacter::BeginPlay()

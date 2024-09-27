@@ -12,6 +12,7 @@ class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
 class AInventoryHUD;
+class UInventoryComponent;
 
 USTRUCT()
 struct FInteractionData
@@ -45,6 +46,10 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	FORCEINLINE bool IsInteracting() const { return GetWorldTimerManager().IsTimerActive(TimerHandle_Interaction); }
+
+	FORCEINLINE UInventoryComponent* GetInventory() const { return PlayerInventory; }
+
+	void UpdateInteractionWidget() const;
 
 protected:
 
@@ -97,4 +102,7 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* InteractInputAction;
+
+	UPROPERTY(VisibleAnywhere, Category = "Character | Inventory")
+	UInventoryComponent* PlayerInventory;
 };
