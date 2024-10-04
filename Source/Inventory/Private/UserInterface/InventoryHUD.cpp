@@ -32,7 +32,7 @@ void AInventoryHUD::DisplayMenu()
 {
 	if (MainMenuWidget)
 	{
-		IsMenuVisible = true;
+		bIsMenuVisible = true;
 		MainMenuWidget->SetVisibility(ESlateVisibility::Visible);
 	}
 }
@@ -41,8 +41,28 @@ void AInventoryHUD::HideMenu()
 {
 	if (MainMenuWidget)
 	{
-		IsMenuVisible = false;
+		bIsMenuVisible = false;
 		MainMenuWidget->SetVisibility(ESlateVisibility::Collapsed);
+	}
+}
+
+void AInventoryHUD::ToggleMenu()
+{
+	if (bIsMenuVisible)
+	{
+		HideMenu();
+
+		const FInputModeGameOnly InputMode;
+		GetOwningPlayerController()->SetInputMode(InputMode);
+		GetOwningPlayerController()->SetShowMouseCursor(false);	
+	}
+	else
+	{
+		DisplayMenu();
+
+		const FInputModeGameAndUI InputMode;
+		GetOwningPlayerController()->SetInputMode(InputMode);
+		GetOwningPlayerController()->SetShowMouseCursor(true);
 	}
 }
 

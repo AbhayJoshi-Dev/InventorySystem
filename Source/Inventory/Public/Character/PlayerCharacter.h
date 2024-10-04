@@ -59,6 +59,7 @@ protected:
 
 	void Look(const FInputActionValue& Value);
 
+	void ToggleMenu();
 
 	void PerformInteractionCheck();
 	void FoundInteractable(AActor* NewInteractable);
@@ -102,6 +103,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* InteractInputAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* ToggleMenuInputAction;
 
 	UPROPERTY(VisibleAnywhere, Category = "Character | Inventory")
 	UInventoryComponent* PlayerInventory;

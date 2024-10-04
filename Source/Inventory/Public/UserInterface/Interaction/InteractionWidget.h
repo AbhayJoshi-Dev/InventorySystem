@@ -7,9 +7,9 @@
 #include "InteractionWidget.generated.h"
 
 class APlayerCharacter;
-struct FInteractableData;
 class UTextBlock;
 class UProgressBar;
+struct FInteractableData;
 
 UCLASS()
 class INVENTORY_API UInteractionWidget : public UUserWidget

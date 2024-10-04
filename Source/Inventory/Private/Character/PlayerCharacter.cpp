@@ -66,6 +66,11 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 	AddControllerPitchInput(LookVector.Y);
 }
 
+void APlayerCharacter::ToggleMenu()
+{
+	HUD->ToggleMenu();
+}
+
 void APlayerCharacter::PerformInteractionCheck()
 {
 	InteractionData.LastInteractionCheckTime = GetWorld()->GetTimeSeconds();
@@ -205,6 +210,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(InteractInputAction, ETriggerEvent::Started, this, &APlayerCharacter::BeginInteract);
 
 		EnhancedInputComponent->BindAction(InteractInputAction, ETriggerEvent::Completed, this, &APlayerCharacter::EndInteract);
+
+		EnhancedInputComponent->BindAction(ToggleMenuInputAction, ETriggerEvent::Started, this, &APlayerCharacter::ToggleMenu);
 	}
 }
 

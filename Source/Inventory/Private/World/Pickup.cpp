@@ -106,15 +106,7 @@ void APickup::InitializePickup(const TSubclassOf<UItemBase> BaseClass, const int
 	ItemReference->ItemTextData = ItemData->ItemTextData;
 	ItemReference->ItemAssetData = ItemData->ItemAssetData;
 
-	//InQuantity <= 0 ? ItemReference->SetQuantity(1) : ItemReference->SetQuantity(InQuantity);
-	if (InQuantity <= 0)
-	{
-		ItemReference->SetQuantity(1);
-	}
-	else
-	{
-		ItemReference->SetQuantity(InQuantity);
-	}
+	InQuantity <= 0 ? ItemReference->SetQuantity(1) : ItemReference->SetQuantity(InQuantity);
 
 	PickupMesh->SetStaticMesh(ItemData->ItemAssetData.Mesh);
 
