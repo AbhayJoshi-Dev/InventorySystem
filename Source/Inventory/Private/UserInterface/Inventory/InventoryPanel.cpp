@@ -27,14 +27,14 @@ void UInventoryPanel::RefreshInventory()
 {
 	if (!InventoryReference || !InventorySlotClass) return;
 
-	InventoryPanel->ClearChildren();
+	InventoryWrapBox->ClearChildren();
 
 	for (UItemBase* const& InventoryItem : InventoryReference->GetInventoryContents())
 	{
 		UInventoryItemSlot* ItemSlot = CreateWidget<UInventoryItemSlot>(this, InventorySlotClass);
 		ItemSlot->SetItemReference(InventoryItem);
 			
-		InventoryPanel->AddChildToWrapBox(ItemSlot);
+		InventoryWrapBox->AddChildToWrapBox(ItemSlot);
 	}
 
 	SetInfoText();
@@ -42,13 +42,15 @@ void UInventoryPanel::RefreshInventory()
 
 void UInventoryPanel::SetInfoText() const
 {
-	WeightInfo->SetText(FText::Format(FText::FromString("{0}/{1}"),
-		InventoryReference->GetInventoryTotalWeight(),
-		InventoryReference->GetWeightCapacity()));
+	const FString WeightInfoValue = { FString::SanitizeFloat(InventoryReference->GetInventoryTotalWeight()) + "/"
+										+ FString::SanitizeFloat(InventoryReference->GetWeightCapacity()) };
 
-	CapacityInfo->SetText(FText::Format(FText::FromString("{0}/{1}"),
-		InventoryReference->GetInventoryContents().Num(),
-		InventoryReference->GetSlotCapacity()));
+	WeightInfo->SetText(FText::FromString(WeightInfoValue));
+
+	const FString CapacityInfoValue = { FString::FromInt(InventoryReference->GetInventoryContents().Num()) + "/"
+										+ FString::FromInt(InventoryReference->GetSlotsCapacity()) };
+
+	CapacityInfo->SetText(FText::FromString(CapacityInfoValue));
 }
 
 bool UInventoryPanel::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)

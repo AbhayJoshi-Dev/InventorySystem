@@ -10,56 +10,83 @@ void UInventoryToolTip::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	const UItemBase* ItemBeingHovered = InventorySlotBeingHovered->GetItemReference();
-
-	switch (ItemBeingHovered->ItemType)
+	if (const UItemBase* ItemBeingHovered = InventorySlotBeingHovered->GetItemReference())
 	{
-	case EItemType::Armor:
-		break;
+		switch (ItemBeingHovered->ItemQuality)
+		{
+		case EItemQuality::Shoddy:
+			ItemType->SetColorAndOpacity(FLinearColor::Gray);
+			break;
 
-	case EItemType::Weapon:
-		break;
+		case EItemQuality::Common:
+			ItemType->SetColorAndOpacity(FLinearColor::White);
+			break;
 
-	case EItemType::Shield:
-		break;
+		case EItemQuality::Quality:
+			ItemType->SetColorAndOpacity(FLinearColor::Green);
+			break;
 
-	case EItemType::Consumable:
-		ItemType->SetText(FText::FromString("Consumable"));
-		DamageValue->SetVisibility(ESlateVisibility::Collapsed);
-		ArmorRating->SetVisibility(ESlateVisibility::Collapsed);
-	//	SellValue->SetVisibility(ESlateVisibility::Collapsed);
-		break;
+		case EItemQuality::Masterwork:
+			ItemType->SetColorAndOpacity(FLinearColor::Blue);
+			break;
 
-	case EItemType::Quest:
-		break;
+		case EItemQuality::Grandmaster:
+			ItemType->SetColorAndOpacity(FLinearColor::Red);
+			break;
 
-	case EItemType::Mundane:
-		ItemType->SetText(FText::FromString("Mundane Item"));
-		DamageValue->SetVisibility(ESlateVisibility::Collapsed);
-		ArmorRating->SetVisibility(ESlateVisibility::Collapsed);
-		UsageText->SetVisibility(ESlateVisibility::Collapsed);
-	//	SellValue->SetVisibility(ESlateVisibility::Collapsed);
-		break;
+		default:
+			break;
+		}
 
-	default:
-		break;
+
+		switch (ItemBeingHovered->ItemType)
+		{
+		case EItemType::Armor:
+			break;
+
+		case EItemType::Weapon:
+			break;
+
+		case EItemType::Shield:
+			break;
+
+		case EItemType::Consumable:
+			ItemType->SetText(FText::FromString("Consumable"));
+			DamageValue->SetVisibility(ESlateVisibility::Collapsed);
+			ArmorRating->SetVisibility(ESlateVisibility::Collapsed);
+			break;
+
+		case EItemType::Quest:
+			break;
+
+		case EItemType::Mundane:
+			ItemType->SetText(FText::FromString("Mundane"));
+			DamageValue->SetVisibility(ESlateVisibility::Collapsed);
+			ArmorRating->SetVisibility(ESlateVisibility::Collapsed);
+			UsageText->SetVisibility(ESlateVisibility::Collapsed);
+			break;
+
+		default:
+			break;
+		}
+
+		ItemName->SetText(ItemBeingHovered->ItemTextData.Name);
+		DamageValue->SetText(FText::AsNumber(ItemBeingHovered->ItemStatistics.DamageValue));
+		ArmorRating->SetText(FText::AsNumber(ItemBeingHovered->ItemStatistics.ArmorRating));
+		UsageText->SetText(ItemBeingHovered->ItemTextData.UsageText);
+		ItemDescription->SetText(ItemBeingHovered->ItemTextData.Description);
+
+		const FString WeightInfo = { "Weight: " + FString::SanitizeFloat(ItemBeingHovered->GetItemStackWeight()) };
+		StackWeight->SetText(FText::FromString(WeightInfo));
+
+		if (ItemBeingHovered->ItemNumericData.bIsStacakable)
+		{
+			const FString StackInfo = { "Max stack size: " + FString::FromInt(ItemBeingHovered->ItemNumericData.MaxStackSize) };
+			MaxStackSizeText->SetText(FText::FromString(StackInfo));
+		}
+		else
+		{
+			MaxStackSizeText->SetVisibility(ESlateVisibility::Collapsed);
+		}
 	}
-
-	ItemName->SetText(ItemBeingHovered->ItemTextData.Name);
-	DamageValue->SetText(FText::AsNumber(ItemBeingHovered->ItemStatistics.DamageValue));
-	ArmorRating->SetText(FText::AsNumber(ItemBeingHovered->ItemStatistics.ArmorRating));
-	UsageText->SetText(ItemBeingHovered->ItemTextData.UsageText);
-	ItemDescription->SetText(ItemBeingHovered->ItemTextData.Description);
-	//SellValue->SetText(FText::AsNumber(ItemBeingHovered->ItemStatistics.SellValue));
-	StackWeight->SetText(FText::AsNumber(ItemBeingHovered->GetItemStackWeight()));
-
-	if (ItemBeingHovered->ItemNumericData.bIsStacakable)
-	{
-		MaxStackSizeText->SetText(FText::AsNumber(ItemBeingHovered->ItemNumericData.MaxStackSize));
-	}
-	else
-	{
-		MaxStackSizeText->SetVisibility(ESlateVisibility::Collapsed);
-	}
-
 }

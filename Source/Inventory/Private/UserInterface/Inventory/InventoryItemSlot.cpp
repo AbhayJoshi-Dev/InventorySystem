@@ -24,28 +24,27 @@ void UInventoryItemSlot::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	if (ItemReference)
+	if (!ItemReference) return;
+
+	switch (ItemReference->ItemQuality)
 	{
-		switch (ItemReference->ItemQuality)
-		{
-		case EItemQuality::Shoddy:
-			ItemBorder->SetBrushColor(FLinearColor::Gray);
-			break;
-		case EItemQuality::Common:
-			ItemBorder->SetBrushColor(FLinearColor::White);
-			break;
-		case EItemQuality::Quality:
-			ItemBorder->SetBrushColor(FLinearColor::Green);
-			break;
-		case EItemQuality::Masterwork:
-			ItemBorder->SetBrushColor(FLinearColor::Blue);
-			break;
-		case EItemQuality::Grandmaster:
-			ItemBorder->SetBrushColor(FLinearColor::Red);
-			break;
-		default:
-			break;
-		}
+	case EItemQuality::Shoddy:
+		ItemBorder->SetBrushColor(FLinearColor::Gray);
+		break;
+	case EItemQuality::Common:
+		ItemBorder->SetBrushColor(FLinearColor::White);
+		break;
+	case EItemQuality::Quality:
+		ItemBorder->SetBrushColor(FLinearColor::Green);
+		break;
+	case EItemQuality::Masterwork:
+		ItemBorder->SetBrushColor(FLinearColor::Blue);
+		break;
+	case EItemQuality::Grandmaster:
+		ItemBorder->SetBrushColor(FLinearColor::Red);
+		break;
+	default:
+		break;
 	}
 
 	ItemIcon->SetBrushFromTexture(ItemReference->ItemAssetData.Icon);

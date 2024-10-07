@@ -100,7 +100,7 @@ public:
 	UFUNCTION()
 	FORCEINLINE float GetWeightCapacity() const { return InventoryWeightCapacity; }
 	UFUNCTION()
-	FORCEINLINE int32 GetSlotCapacity() const { return InventorySlotsCapacity; }
+	FORCEINLINE int32 GetSlotsCapacity() const { return InventorySlotsCapacity; }
 	UFUNCTION()
 	FORCEINLINE TArray<UItemBase*> GetInventoryContents() const { return InventoryContents; }
 
