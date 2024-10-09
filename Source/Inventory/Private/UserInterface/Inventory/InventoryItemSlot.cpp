@@ -7,6 +7,8 @@
 #include "Components/Border.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
+#include "UserInterface/Inventory/DragItemVisual.h"
+#include "UserInterface/Inventory/ItemDragDropOperation.h"
 
 void UInventoryItemSlot::NativeOnInitialized()
 {
@@ -61,7 +63,14 @@ void UInventoryItemSlot::NativeConstruct()
 
 FReply UInventoryItemSlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
-	return Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
+	FReply Reply =  Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
+
+	if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
+	{
+		return Reply.Handled().DetectDrag(TakeWidget(), EKeys::LeftMouseButton);
+	}
+
+	return Reply.Unhandled();
 }
 
 void UInventoryItemSlot::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
@@ -70,6 +79,23 @@ void UInventoryItemSlot::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
 
 void UInventoryItemSlot::NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation)
 {
+	Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
+
+	if (!DragItemVisualClass) return;
+
+	const TObjectPtr<UDragItemVisual> DragItemVisual = CreateWidget<UDragItemVisual>(this, DragItemVisualClass);
+	DragItemVisual->ItemIcon->SetBrushFromTexture(ItemReference->ItemAssetData.Icon);
+	DragItemVisual->ItemBorder->SetBrushColor(ItemBorder->GetBrushColor());
+	DragItemVisual->ItemQuantity->SetText(FText::AsNumber(ItemReference->Quantity));
+
+	UItemDragDropOperation* ItemDragOperation = NewObject<UItemDragDropOperation>();
+	ItemDragOperation->SourceItem = ItemReference;
+	ItemDragOperation->SourceInventory = ItemReference->OwningInventory;
+
+	ItemDragOperation->DefaultDragVisual = DragItemVisual;
+	ItemDragOperation->Pivot = EDragPivot::TopLeft;
+
+	OutOperation = ItemDragOperation;
 }
 
 bool UInventoryItemSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
