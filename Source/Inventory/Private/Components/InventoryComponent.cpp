@@ -90,7 +90,7 @@ UItemBase* UInventoryComponent::FindNextPartialStack(UItemBase* Item) const
 {
 	if (const TObjectPtr<UItemBase>* Result = InventoryContents.FindByPredicate([&Item](const UItemBase* InventoryItem)
 		{
-			return InventoryItem->ID == Item->ID && InventoryItem->IsFullItemStack();
+			return InventoryItem->ID == Item->ID && !InventoryItem->IsFullItemStack();
 		}))
 	{
 		return *Result;
@@ -159,7 +159,95 @@ FItemAddResult UInventoryComponent::HandleNonStackableItems(UItemBase* Item)
 
 int32 UInventoryComponent::HandleStackableItems(UItemBase* Item, int32 RequestedAddAmount)
 {
-	return int32();
+	if (RequestedAddAmount <= 0 || FMath::IsNearlyZero(Item->GetItemStackWeight()))
+	{
+		// invalid item weight, nothing added
+		return 0;
+	}
+
+	int32 AmountToDistribute = RequestedAddAmount;
+
+	//check if the item already exists in the inventory  and is not a full stack
+	UItemBase* ExistingItemStack = FindNextPartialStack(Item);
+
+	//distribute item stack over existing stacks
+	while (ExistingItemStack)
+	{
+		// calculate how many items needed to make full stack
+		const int32 AmountToMakeFullStack = CalculateNumberForFullStack(ExistingItemStack, AmountToDistribute);
+		//calculate how many items can fit in inventory based on weight
+		const int32 WeightLimitAddAmount = CalculateWeightAddAmount(ExistingItemStack, AmountToMakeFullStack);
+
+		if (WeightLimitAddAmount > 0)
+		{
+			ExistingItemStack->SetQuantity(ExistingItemStack->Quantity + WeightLimitAddAmount);
+			InventoryTotalWeight += (ExistingItemStack->GetItemSingleWeight() * WeightLimitAddAmount);
+
+			AmountToDistribute -= WeightLimitAddAmount;
+
+			Item->SetQuantity(AmountToDistribute);
+
+			//  inventory max weight will reached if another item added
+			if (InventoryTotalWeight + ExistingItemStack->GetItemSingleWeight() > InventoryWeightCapacity)
+			{
+				OnInventoryUpdated.Broadcast();
+				return RequestedAddAmount - AmountToDistribute;
+			}
+		}
+		else if (WeightLimitAddAmount <= 0)
+		{
+			if (AmountToDistribute != RequestedAddAmount)
+			{
+				//weight limit, can't add more
+
+				OnInventoryUpdated.Broadcast();
+				return RequestedAddAmount - AmountToDistribute;
+			}
+
+			// partial stack found but nothing ca be added
+			return 0;
+		}
+
+		if (AmountToDistribute <= 0)
+		{
+			// everithing was distributed across existing stacks
+			OnInventoryUpdated.Broadcast();
+			return RequestedAddAmount;
+		}
+
+		ExistingItemStack = FindNextPartialStack(Item);
+	}
+
+	// no partial stacks found, check if new stack can be added
+	if (InventoryContents.Num() + 1 <= InventorySlotsCapacity)
+	{
+		// calculate how many items can fit in inventory based on weight
+		const int32 WeightLimitAddAmount = CalculateWeightAddAmount(Item, AmountToDistribute);
+
+		if (WeightLimitAddAmount > 0)
+		{
+			// check if we can add all item or weight limit reached
+			if (WeightLimitAddAmount < AmountToDistribute)
+			{
+				AmountToDistribute -= WeightLimitAddAmount;
+				Item->SetQuantity(AmountToDistribute);
+
+				//create copy because only a partial stack being added
+				AddNewItem(Item->CreateItemCopy(), WeightLimitAddAmount);
+				return RequestedAddAmount - AmountToDistribute;
+			}
+
+			// full remainder of stack added
+			AddNewItem(Item, AmountToDistribute);
+			return RequestedAddAmount;
+		}
+
+		//no partial stacks and no extra weight capacity
+		return RequestedAddAmount - AmountToDistribute;
+	}
+
+	//no existing stack left or no extra slots capacity
+	return 0;
 }
 
 int32 UInventoryComponent::CalculateWeightAddAmount(UItemBase* Item, int32 RequestedAddAmount)
@@ -167,6 +255,7 @@ int32 UInventoryComponent::CalculateWeightAddAmount(UItemBase* Item, int32 Reque
 	const int32 WeightMaxAddAmount = FMath::FloorToInt((GetWeightCapacity() - InventoryTotalWeight) / Item->GetItemSingleWeight());
 	if (WeightMaxAddAmount >= RequestedAddAmount)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Calculating Weight Add Amount"));
 		return RequestedAddAmount;
 	}
 
@@ -176,6 +265,8 @@ int32 UInventoryComponent::CalculateWeightAddAmount(UItemBase* Item, int32 Reque
 int32 UInventoryComponent::CalculateNumberForFullStack(UItemBase* StackableItem, int32 InitialRequestedAddAmount)
 {
 	const int32 AddAmountToMakeFullStack = StackableItem->ItemNumericData.MaxStackSize - StackableItem->Quantity;
+
+	UE_LOG(LogTemp, Warning, TEXT("Calculating Amount for full Stack"));
 
 	return FMath::Min(InitialRequestedAddAmount, AddAmountToMakeFullStack);
 }

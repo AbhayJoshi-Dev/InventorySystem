@@ -68,7 +68,7 @@ FReply UInventoryItemSlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, 
 	if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
 	{
 		return Reply.Handled().DetectDrag(TakeWidget(), EKeys::LeftMouseButton);
-	}
+	}	
 
 	return Reply.Unhandled();
 }
@@ -86,7 +86,9 @@ void UInventoryItemSlot::NativeOnDragDetected(const FGeometry& InGeometry, const
 	const TObjectPtr<UDragItemVisual> DragItemVisual = CreateWidget<UDragItemVisual>(this, DragItemVisualClass);
 	DragItemVisual->ItemIcon->SetBrushFromTexture(ItemReference->ItemAssetData.Icon);
 	DragItemVisual->ItemBorder->SetBrushColor(ItemBorder->GetBrushColor());
-	DragItemVisual->ItemQuantity->SetText(FText::AsNumber(ItemReference->Quantity));
+
+	ItemReference->ItemNumericData.bIsStacakable ? DragItemVisual->ItemQuantity->SetText(FText::AsNumber(ItemReference->Quantity))
+												 : DragItemVisual->ItemQuantity->SetVisibility(ESlateVisibility::Collapsed);
 
 	UItemDragDropOperation* ItemDragOperation = NewObject<UItemDragDropOperation>();
 	ItemDragOperation->SourceItem = ItemReference;
