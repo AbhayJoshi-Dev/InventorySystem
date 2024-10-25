@@ -47,10 +47,7 @@ protected:
 	UStaticMeshComponent* PickupMesh;
 
 	UPROPERTY(EditInstanceOnly, Category = "Pickup | Item Initialization")
-	UDataTable* ItemDataTable;
-
-	UPROPERTY(EditInstanceOnly, Category = "Pickup | Item Initialization")
-	FName DesiredItemID;
+	FDataTableRowHandle ItemRowHandle;
 
 	UPROPERTY(VisibleAnywhere, Category = "Pickup | Item Reference")
 	UItemBase* ItemReference;
