@@ -21,44 +21,51 @@ void UInventoryComponent::BeginPlay()
 
 FItemAddResult UInventoryComponent::HandleAddItem(UItemBase* Item)
 {
-	const int32 InitialRequestAddAmount = Item->Quantity;
 
-	//handle non stackable items
-	if (!Item->ItemNumericData.bIsStacakable)
-	{
-		return HandleNonStackableItems(Item);
-	}
 
-	//handle stackable items
-	const int32 StackableAmountAdded = HandleStackableItems(Item, InitialRequestAddAmount);
-
-	if (StackableAmountAdded == InitialRequestAddAmount)
-	{
-		return FItemAddResult::AddedAll(InitialRequestAddAmount, FText::Format(
-			FText::FromString("Successfully added {0} {1} to the inventory."),
-			InitialRequestAddAmount,
-			Item->ItemTextData.Name));
-	}
-
-	if (StackableAmountAdded < InitialRequestAddAmount && StackableAmountAdded > 0)
-	{
-		return FItemAddResult::AddedPartial(StackableAmountAdded, FText::Format(
-			FText::FromString("Partial amount of {0} to the inventory. Number added = {1}"),
-			Item->ItemTextData.Name,
-			InitialRequestAddAmount));
-	}
-
-	if (StackableAmountAdded <= 0)
-	{
-		return FItemAddResult::AddedNone(FText::Format(
-			FText::FromString("Couldn't add {0} to the inventory. No remaining inventory slots, or invalid item."),
-			Item->ItemTextData.Name));
-	}
-
-	//test
-	check(false);
-	return FItemAddResult::AddedNone(FText::FromString("TryAddItem failthrough error. GetOwner() check failed."));
+	return FItemAddResult::AddedNone(FText::FromString("Nothing added."));
 }
+
+//FItemAddResult UInventoryComponent::HandleAddItem(UItemBase* Item)
+//{
+//	const int32 InitialRequestAddAmount = Item->Quantity;
+//
+//	//handle non stackable items
+//	if (!Item->ItemNumericData.bIsStacakable)
+//	{
+//		return HandleNonStackableItems(Item);
+//	}
+//
+//	//handle stackable items
+//	const int32 StackableAmountAdded = HandleStackableItems(Item, InitialRequestAddAmount);
+//
+//	if (StackableAmountAdded == InitialRequestAddAmount)
+//	{
+//		return FItemAddResult::AddedAll(InitialRequestAddAmount, FText::Format(
+//			FText::FromString("Successfully added {0} {1} to the inventory."),
+//			InitialRequestAddAmount,
+//			Item->ItemTextData.Name));
+//	}
+//
+//	if (StackableAmountAdded < InitialRequestAddAmount && StackableAmountAdded > 0)
+//	{
+//		return FItemAddResult::AddedPartial(StackableAmountAdded, FText::Format(
+//			FText::FromString("Partial amount of {0} to the inventory. Number added = {1}"),
+//			Item->ItemTextData.Name,
+//			InitialRequestAddAmount));
+//	}
+//
+//	if (StackableAmountAdded <= 0)
+//	{
+//		return FItemAddResult::AddedNone(FText::Format(
+//			FText::FromString("Couldn't add {0} to the inventory. No remaining inventory slots, or invalid item."),
+//			Item->ItemTextData.Name));
+//	}
+//
+//	//test
+//	check(false);
+//	return FItemAddResult::AddedNone(FText::FromString("TryAddItem failthrough error. GetOwner() check failed."));
+//}
 
 UItemBase* UInventoryComponent::FindMatchingItem(UItemBase* Item) const
 {

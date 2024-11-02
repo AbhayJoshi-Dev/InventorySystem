@@ -109,17 +109,34 @@ public:
 	UFUNCTION()
 	FORCEINLINE void SetWeightCapacity(const float NewWeightCapacity) { InventoryWeightCapacity = NewWeightCapacity; }
 
+	UFUNCTION()
+	FORCEINLINE int32 GetRows() const { return Rows; }
+
+	UFUNCTION()
+	FORCEINLINE int32 GetColumns() const { return Columns; }
+
 protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")
 	float InventoryTotalWeight;
-	UPROPERTY(EditInstanceOnly, Category = "Inventory")
+
+	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
 	int32 InventorySlotsCapacity;
-	UPROPERTY(EditInstanceOnly, Category = "Inventory")
+
+	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
 	float InventoryWeightCapacity;
 
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")
 	TArray<TObjectPtr<UItemBase>> InventoryContents;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
+	int32 Rows;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
+	int32 Columns;
+
+
+protected:
 
 	virtual void BeginPlay() override;
 
