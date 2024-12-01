@@ -16,14 +16,27 @@ void UInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	InventoryContents.Reserve(Rows * Columns);
 
+	InventoryContents.Init(nullptr, Rows * Columns);
 }
 
-FItemAddResult UInventoryComponent::HandleAddItem(UItemBase* Item)
+bool UInventoryComponent::HandleAddItem(UItemBase* Item)
 {
+	if (!Item) return false;
 
+	// for loop for all array elements
+	for(int32 i = 0; i < InventoryContents.Max(); i++)
+	{
+		// is room available
+		if (IsRoomAvailable(Item, i))
+		{
+			AddNewItem(Item, i);
 
-	return FItemAddResult::AddedNone(FText::FromString("Nothing added."));
+			return true;
+		}
+	}
+	return false;
 }
 
 //FItemAddResult UInventoryComponent::HandleAddItem(UItemBase* Item)
@@ -135,34 +148,52 @@ void UInventoryComponent::SplitExistingStack(UItemBase* Item, const int32 Amount
 	}
 }
 
-FItemAddResult UInventoryComponent::HandleNonStackableItems(UItemBase* Item)
+TMap<UItemBase*, FTile> UInventoryComponent::GetUniqueItems()
 {
-	//check if the input item has valid weight
-	if (FMath::IsNearlyZero(Item->GetItemSingleWeight()) || Item->GetItemSingleWeight() < 0)
+	TMap<UItemBase*, FTile> Items;
+
+	for (int i = 0; i < InventoryContents.Num(); i++)
 	{
-		return FItemAddResult::AddedNone(FText::Format(
-			FText::FromString("Could not add {0} to the inventory. Item has invalid weight value."), Item->ItemTextData.Name));
+		// element is null or invalid
+		if (!InventoryContents[i]) continue;
+
+		// element already in the map
+		if (Items.Contains(InventoryContents[i])) continue;
+
+		Items.Add(InventoryContents[i], IndexToTile(i));
 	}
 
-	//check if the item weight overflow inventory weight capacity
-	if (InventoryTotalWeight + Item->GetItemSingleWeight() > GetWeightCapacity())
-	{
-		return FItemAddResult::AddedNone(FText::Format(
-			FText::FromString("Could not add {0} to the inventory. Item would overflow weight limit."), Item->ItemTextData.Name));
-	}
-
-	//adding one more item would overflow inventory slot capacity
-	if (InventoryContents.Num() + 1 > InventorySlotsCapacity)
-	{
-		return FItemAddResult::AddedNone(FText::Format(
-			FText::FromString("Could not add {0} to the inventory. All inventory slots are full."), Item->ItemTextData.Name));
-	}
-
-	AddNewItem(Item, 1);
-
-	return FItemAddResult::AddedAll(1, FText::Format(
-		FText::FromString("Successfully added a single {0} to the inventory."), Item->ItemTextData.Name));
+	return Items;
 }
+
+//FItemAddResult UInventoryComponent::HandleNonStackableItems(UItemBase* Item)
+//{
+//	//check if the input item has valid weight
+//	if (FMath::IsNearlyZero(Item->GetItemSingleWeight()) || Item->GetItemSingleWeight() < 0)
+//	{
+//		return FItemAddResult::AddedNone(FText::Format(
+//			FText::FromString("Could not add {0} to the inventory. Item has invalid weight value."), Item->ItemTextData.Name));
+//	}
+//
+//	//check if the item weight overflow inventory weight capacity
+//	if (InventoryTotalWeight + Item->GetItemSingleWeight() > GetWeightCapacity())
+//	{
+//		return FItemAddResult::AddedNone(FText::Format(
+//			FText::FromString("Could not add {0} to the inventory. Item would overflow weight limit."), Item->ItemTextData.Name));
+//	}
+//
+//	//adding one more item would overflow inventory slot capacity
+//	if (InventoryContents.Num() + 1 > InventorySlotsCapacity)
+//	{
+//		return FItemAddResult::AddedNone(FText::Format(
+//			FText::FromString("Could not add {0} to the inventory. All inventory slots are full."), Item->ItemTextData.Name));
+//	}
+//
+//	AddNewItem(Item, 1);
+//
+//	return FItemAddResult::AddedAll(1, FText::Format(
+//		FText::FromString("Successfully added a single {0} to the inventory."), Item->ItemTextData.Name));
+//}
 
 int32 UInventoryComponent::HandleStackableItems(UItemBase* Item, int32 RequestedAddAmount)
 {
@@ -240,12 +271,12 @@ int32 UInventoryComponent::HandleStackableItems(UItemBase* Item, int32 Requested
 				Item->SetQuantity(AmountToDistribute);
 
 				//create copy because only a partial stack being added
-				AddNewItem(Item->CreateItemCopy(), WeightLimitAddAmount);
+				//AddNewItem(Item->CreateItemCopy(), WeightLimitAddAmount);
 				return RequestedAddAmount - AmountToDistribute;
 			}
 
 			// full remainder of stack added
-			AddNewItem(Item, AmountToDistribute);
+			//AddNewItem(Item, AmountToDistribute);
 			return RequestedAddAmount;
 		}
 
@@ -278,26 +309,82 @@ int32 UInventoryComponent::CalculateNumberForFullStack(UItemBase* StackableItem,
 	return FMath::Min(InitialRequestedAddAmount, AddAmountToMakeFullStack);
 }
 
-void UInventoryComponent::AddNewItem(UItemBase* Item, int32 AmountToAdd)
+void UInventoryComponent::AddNewItem(UItemBase* Item, int32 TopLeftIndex)
 {
-	UItemBase* NewItem;
+	const FTile Tile = IndexToTile(TopLeftIndex);
 
-	if (Item->bIsCopy || Item->bIsPickup)
+	//horizontal grid
+	for (int32 j = Tile.X; j < Tile.X + Item->ItemNumericData.Dimensions.X; j++)
 	{
-		// item already a copy or is a world pickup
-		NewItem = Item;
-		NewItem->ResetItemFlags();
-	}
-	else
-	{
-		// splitting or dragging to.from other inventory
-		NewItem = Item->CreateItemCopy();
+		//vertical grid
+		for (int32 k = Tile.Y; k < Tile.Y + Item->ItemNumericData.Dimensions.Y; k++)
+		{
+			InventoryContents[TileToIndex(FTile(j, k))] = Item;
+		}
 	}
 
-	NewItem->OwningInventory = this;
-	NewItem->SetQuantity(AmountToAdd);
-
-	InventoryContents.Add(NewItem);
-	InventoryTotalWeight += NewItem->GetItemStackWeight();
 	OnInventoryUpdated.Broadcast();
+}
+
+//void UInventoryComponent::AddNewItem(UItemBase* Item, int32 AmountToAdd)
+//{
+//	UItemBase* NewItem;
+//
+//	if (Item->bIsCopy || Item->bIsPickup)
+//	{
+//		// item already a copy or is a world pickup
+//		NewItem = Item;
+//		NewItem->ResetItemFlags();
+//	}
+//	else
+//	{
+//		// splitting or dragging to.from other inventory
+//		NewItem = Item->CreateItemCopy();
+//	}
+//
+//	NewItem->OwningInventory = this;
+//	NewItem->SetQuantity(AmountToAdd);
+//
+//	InventoryContents.Add(NewItem);
+//	InventoryTotalWeight += NewItem->GetItemStackWeight();
+//	OnInventoryUpdated.Broadcast();
+//}
+
+const FTile UInventoryComponent::IndexToTile(int32 Index) const
+{
+	return FTile( Index % Columns, Index / Columns);
+}
+
+const int32 UInventoryComponent::TileToIndex(FTile Tile) const
+{
+	return Tile.X + Tile.Y * Columns;
+}
+
+const bool UInventoryComponent::IsTileValid(FTile Tile) const
+{
+	return (Tile.X >= 0 && Tile.Y >=0) && (Tile.X < Columns && Tile.Y < Rows);
+}
+
+bool UInventoryComponent::IsRoomAvailable(UItemBase* Item, int32 TopLeftIndex)
+{
+	const FTile Tile = IndexToTile(TopLeftIndex);
+
+	//horizontal grid
+	for (int32 j = Tile.X; j < Tile.X + Item->ItemNumericData.Dimensions.X; j++)
+	{
+		//vertical grid
+		for (int32 k = Tile.Y; k < Tile.Y + Item->ItemNumericData.Dimensions.Y; k++)
+		{
+			if (!IsTileValid(FTile(j, k))) return false;
+
+			int32 index = TileToIndex(FTile(j, k));
+
+			// no room available on the tile
+			if (InventoryContents[index]) return false;
+
+
+		}
+	}
+
+	return true;
 }

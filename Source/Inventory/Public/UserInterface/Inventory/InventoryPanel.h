@@ -7,29 +7,12 @@
 #include "InventoryItemSlot.h"
 #include "InventoryPanel.generated.h"
 
-class UWrapBox;
-class UTextBlock;
 class UBorder;
+class UCanvasPanel;
 class APlayerCharacter;
 class UInventoryComponent;
 class UCanvasPanelSlot;
-
-USTRUCT(BlueprintType)
-struct FLine
-{
-	GENERATED_BODY()
-	FVector2D Start;
-	FVector2D End;
-};
-
-USTRUCT(BlueprintType)
-struct FTile
-{
-	GENERATED_BODY()
-
-	int32 X;
-	int32 Y;
-};
+struct FInventoryLine;
 
 UCLASS()
 class INVENTORY_API UInventoryPanel : public UUserWidget
@@ -43,6 +26,10 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	UBorder* GridBorder;
+
+	UPROPERTY(meta = (BindWidget))
+	UCanvasPanel* GridCanvasPanel;
+
 
 	//UPROPERTY(meta = (BindWidget))
 	//UTextBlock* WeightInfo;
@@ -64,7 +51,7 @@ public:
 
 private:
 
-	TArray<FLine> Lines;
+	TArray<FInventoryLine> Lines;
 
 	UCanvasPanelSlot* GridBorderSlot;
 

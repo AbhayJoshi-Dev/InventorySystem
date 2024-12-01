@@ -47,9 +47,13 @@ void APickup::TakePickup(const APlayerCharacter* Taker)
 
 	if (UInventoryComponent* PlayerInventory = Taker->GetInventory())
 	{
-		const FItemAddResult AddResult = PlayerInventory->HandleAddItem(ItemReference);
+		bool Result = PlayerInventory->HandleAddItem(ItemReference);
 
-		switch (AddResult.OperationResult)
+		if (Result)
+		{
+			Destroy();
+		}
+		/*switch (AddResult.OperationResult)
 		{
 		case EItemAddResult::IAR_NoItemAdded:
 			break;
@@ -67,7 +71,7 @@ void APickup::TakePickup(const APlayerCharacter* Taker)
 			break;
 		}
 
-		UE_LOG(LogTemp, Warning, TEXT("%s"), *AddResult.ResultMessage.ToString());
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *AddResult.ResultMessage.ToString());*/
 	}
 }
 

@@ -4,11 +4,11 @@
 #include "UserInterface/Inventory/InventoryPanel.h"
 #include "Character/PlayerCharacter.h"
 #include "Components/InventoryComponent.h"
-#include "Components/TextBlock.h"
-#include "Components/WrapBox.h"
 #include "Components/Border.h"
 #include "UserInterface/Inventory/ItemDragDropOperation.h"
 #include "Components/CanvasPanelSlot.h"
+#include "Components/CanvasPanel.h"
+#include "Items/ItemBase.h"
 
 #include "Blueprint/WidgetBlueprintLibrary.h"
 
@@ -45,7 +45,7 @@ void UInventoryPanel::CreateLineSegments()
 
 		FVector2D StartLine{ (float)CurrentX, 0 };
 		FVector2D EndLine{ (float)CurrentX, InventoryComponent->GetRows() * TileSize};
-		Lines.Add(FLine(StartLine, EndLine));
+		Lines.Add(FInventoryLine(StartLine, EndLine));
 	}
 
 	// Horizontal Lines
@@ -57,13 +57,33 @@ void UInventoryPanel::CreateLineSegments()
 
 		FVector2D StartLine{ 0, (float)CurrentY };
 		FVector2D EndLine{ InventoryComponent->GetColumns() * TileSize, (float)CurrentY };
-		Lines.Add(FLine(StartLine, EndLine));
+		Lines.Add(FInventoryLine(StartLine, EndLine));
 	}
 }
 
 void UInventoryPanel::RefreshInventory()
 {
-	
+	if (!InventoryComponent) return;
+
+	GridCanvasPanel->ClearChildren();
+
+	TMap<UItemBase*, FTile> ItemsMap = InventoryComponent->GetUniqueItems();
+
+	for (const TPair<UItemBase*, FTile>& Pair : ItemsMap)
+	{
+		UInventoryItemSlot* ItemSlot = CreateWidget<UInventoryItemSlot>(this, InventorySlotClass);
+
+		ItemSlot->SetItemReference(Pair.Key);
+		ItemSlot->SetTileSize(TileSize);
+
+		//TODO: Bind on removed event / dispatcher
+
+		UPanelSlot* PanelSlot = GridCanvasPanel->AddChild(ItemSlot);
+
+		UCanvasPanelSlot* GridCanvasPanelSlot = Cast<UCanvasPanelSlot>(PanelSlot);
+		GridCanvasPanelSlot->SetAutoSize(true);
+		GridCanvasPanelSlot->SetPosition(FVector2D(Pair.Value.X * TileSize, Pair.Value.Y * TileSize));
+	}
 }
 
 //void UInventoryPanel::RefreshInventory()

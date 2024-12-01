@@ -8,10 +8,9 @@
 
 class UInventoryToolTip;
 class UDragItemVisual;
-class UBorder;
 class UImage;
 class UItemBase;
-class UTextBlock;
+class USizeBox;
 
 UCLASS()
 class INVENTORY_API UInventoryItemSlot : public UUserWidget
@@ -20,13 +19,18 @@ class INVENTORY_API UInventoryItemSlot : public UUserWidget
 	
 public:
 
-	FORCEINLINE void SetItemReference(UItemBase* InItem) { ItemReference = InItem; }
-	FORCEINLINE UItemBase* GetItemReference() const { return ItemReference; }
+	FORCEINLINE void SetItemReference(UItemBase* InItem) { Item = InItem; }
+	FORCEINLINE UItemBase* GetItemReference() const { return Item; }
+
+	FORCEINLINE void SetTileSize(float Size) { TileSize = Size; }
+
+	UFUNCTION()
+	FSlateBrush UpdateBrush();
 
 protected:
 
-	virtual void NativeOnInitialized() override;
 	virtual void NativeConstruct() override;
+	virtual void NativeOnInitialized() override;
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual void NativeOnMouseLeave(const FPointerEvent& InMouseEvent) override;
 	virtual void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation) override;
@@ -41,14 +45,17 @@ protected:
 	TSubclassOf<UInventoryToolTip> ToolTipClass;
 
 	UPROPERTY(VisibleAnywhere, Category = "Inventory Slot")
-	UItemBase* ItemReference;
+	UItemBase* Item;
 
-	UPROPERTY(VisibleAnywhere, Category = "Inventory Slot", meta = (BindWidget))
-	UBorder* ItemBorder;
+	UPROPERTY(meta = (BindWidget))
+	USizeBox* BackgroundSizeBox;
 
-	UPROPERTY(VisibleAnywhere, Category = "Inventory Slot", meta = (BindWidget))
-	UImage* ItemIcon;
+	UPROPERTY(meta = (BindWidget))
+	UImage* ItemImage;
 
-	UPROPERTY(VisibleAnywhere, Category = "Inventory Slot", meta = (BindWidget))
-	UTextBlock* ItemQuantity;
+private:
+
+	float TileSize;
+
+	FVector2D ItemSize;
 };

@@ -74,6 +74,9 @@ struct FItemNumericData
 
 	UPROPERTY()
 	bool bIsStacakable;
+
+	UPROPERTY(EditAnywhere)
+	FVector2D Dimensions;
 };
 
 USTRUCT()
