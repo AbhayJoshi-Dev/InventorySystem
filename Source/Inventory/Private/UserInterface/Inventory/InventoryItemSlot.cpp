@@ -8,9 +8,10 @@
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 #include "UserInterface/Inventory/DragItemVisual.h"
-#include "UserInterface/Inventory/ItemDragDropOperation.h"
 #include "Components/SizeBox.h"
 #include "Components/CanvasPanelSlot.h"
+#include "Blueprint/DragDropOperation.h"
+#include "Components/InventoryComponent.h"
 
 void UInventoryItemSlot::NativeConstruct()
 {
@@ -83,10 +84,10 @@ FReply UInventoryItemSlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, 
 {
 	FReply Reply =  Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
 
-	//if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
-	//{
-	//	return Reply.Handled().DetectDrag(TakeWidget(), EKeys::LeftMouseButton);
-	//}	
+	if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
+	{
+		return Reply.Handled().DetectDrag(TakeWidget(), EKeys::LeftMouseButton);
+	}	
 
 	return Reply.Unhandled();
 }
@@ -99,6 +100,9 @@ void UInventoryItemSlot::NativeOnDragDetected(const FGeometry& InGeometry, const
 {
 	Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
 
+	// store mouse position when drag detected, used for calculation drop location in InventoryPanel.cpp
+	MousePosWhenDragged = InGeometry.AbsoluteToLocal(InMouseEvent.GetScreenSpacePosition());
+
 	//if (!DragItemVisualClass) return;
 
 	//const TObjectPtr<UDragItemVisual> DragItemVisual = CreateWidget<UDragItemVisual>(this, DragItemVisualClass);
@@ -107,15 +111,21 @@ void UInventoryItemSlot::NativeOnDragDetected(const FGeometry& InGeometry, const
 
 	//Item->ItemNumericData.bIsStacakable ? DragItemVisual->ItemQuantity->SetText(FText::AsNumber(Item->Quantity))
 	//											 : DragItemVisual->ItemQuantity->SetVisibility(ESlateVisibility::Collapsed);
+	
+	//test
+	UDragDropOperation* ItemDragOperation = NewObject< UDragDropOperation>();
 
-	//UItemDragDropOperation* ItemDragOperation = NewObject<UItemDragDropOperation>();
-	//ItemDragOperation->SourceItem = Item;
-	//ItemDragOperation->SourceInventory = Item->OwningInventory;
+	ItemDragOperation->Payload = Item;
 
-	//ItemDragOperation->DefaultDragVisual = DragItemVisual;
-	//ItemDragOperation->Pivot = EDragPivot::TopLeft;
+	ItemDragOperation->DefaultDragVisual = this;
+	ItemDragOperation->Pivot = EDragPivot::MouseDown;
 
-	//OutOperation = ItemDragOperation;
+	Item->OwningInventory->RemoveItem(Item);
+
+	//removes the itemslot from inventory panel
+	RemoveFromParent();
+
+	OutOperation = ItemDragOperation;
 }
 
 bool UInventoryItemSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)

@@ -52,8 +52,6 @@ public:
 
 	void UpdateInteractionWidget() const;
 
-	void DropItem(UItemBase* ItemToDrop, const int32 QuantityToDrop);
-
 protected:
 
 	virtual void BeginPlay() override;

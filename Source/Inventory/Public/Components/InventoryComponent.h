@@ -45,14 +45,25 @@ public:
 
 	UFUNCTION()
 	UItemBase* FindMatchingItem(UItemBase* Item) const;
+
 	UFUNCTION()
 	UItemBase* FindNextItemByID(UItemBase* Item) const;
+
 	UFUNCTION()
 	UItemBase* FindNextPartialStack(UItemBase* Item) const;
+
 	UFUNCTION()
 	void RemoveSingleInstanceOfItem(UItemBase* Item);
+
 	UFUNCTION()
 	int32 RemoveAmountOfItem(UItemBase* Item, int32 DesiredAmountToRemove);
+
+	UFUNCTION()
+	void RemoveItem(UItemBase* ItemToRemove);
+
+	UFUNCTION()
+	void DropItem(UItemBase* ItemToDrop);
+
 	UFUNCTION()
 	void SplitExistingStack(UItemBase* Item, const int32 AmountToSplit);
 
@@ -77,6 +88,14 @@ public:
 
 	UFUNCTION()
 	FORCEINLINE int32 GetColumns() const { return Columns; }
+
+	const int32 TileToIndex(FTile Tile) const;
+
+	const FTile IndexToTile(int32 Index) const;
+
+	bool IsRoomAvailable(UItemBase* Item, int32 TopLeftIndex);
+
+	void AddNewItem(UItemBase* Item, int32 TopLeftIndex);
 
 protected:
 
@@ -107,13 +126,5 @@ protected:
 	int32 CalculateWeightAddAmount(UItemBase* Item, int32 RequestedAddAmount);
 	int32 CalculateNumberForFullStack(UItemBase* StackableItem, int32 InitialRequestedAddAmount);
 
-	void AddNewItem(UItemBase* Item, int32 TopLeftIndex);
-
-	const FTile IndexToTile(int32 Index) const;
-
-	const int32 TileToIndex(FTile Tile) const;
-
 	const bool IsTileValid(FTile Tile) const;
-
-	bool IsRoomAvailable(UItemBase* Item, int32 TopLeftIndex);
 };

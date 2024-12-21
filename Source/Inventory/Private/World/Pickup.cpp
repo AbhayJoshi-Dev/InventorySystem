@@ -35,19 +35,19 @@ void APickup::Interact(APlayerCharacter* PlayerCharacter)
 void APickup::UpdateInteractableData()
 {
 	InstanceInteractableData.InteractableType = EInteractableType::Pickup;
-	InstanceInteractableData.Action = ItemReference->ItemTextData.InteractionText;
-	InstanceInteractableData.Name = ItemReference->ItemTextData.Name;
-	InstanceInteractableData.Quantity = ItemReference->Quantity;
+	InstanceInteractableData.Action = Item->ItemTextData.InteractionText;
+	InstanceInteractableData.Name = Item->ItemTextData.Name;
+	InstanceInteractableData.Quantity = Item->Quantity;
 	InteractableData = InstanceInteractableData;
 }
 
 void APickup::TakePickup(const APlayerCharacter* Taker)
 {
-	if (IsPendingKillPending() && !ItemReference) return;
+	if (IsPendingKillPending() && !Item) return;
 
 	if (UInventoryComponent* PlayerInventory = Taker->GetInventory())
 	{
-		bool Result = PlayerInventory->HandleAddItem(ItemReference);
+		bool Result = PlayerInventory->HandleAddItem(Item);
 
 		if (Result)
 		{
@@ -101,29 +101,28 @@ void APickup::InitializePickup(const TSubclassOf<UItemBase> BaseClass, const int
 
 	const FItemData* ItemData = ItemRowHandle.GetRow<FItemData>(ItemRowHandle.RowName.ToString());
 
-	ItemReference = NewObject<UItemBase>(this, BaseClass);
+	Item = NewObject<UItemBase>(this, BaseClass);
 
-	ItemReference->ID = ItemData->ID;
-	ItemReference->ItemType = ItemData->ItemType;
-	ItemReference->ItemQuality = ItemData->ItemQuality;
-	ItemReference->ItemNumericData = ItemData->ItemNumericData;
-	ItemReference->ItemTextData = ItemData->ItemTextData;
-	ItemReference->ItemAssetData = ItemData->ItemAssetData;
+	Item->ID = ItemData->ID;
+	Item->ItemType = ItemData->ItemType;
+	Item->ItemQuality = ItemData->ItemQuality;
+	Item->ItemNumericData = ItemData->ItemNumericData;
+	Item->ItemTextData = ItemData->ItemTextData;
+	Item->ItemAssetData = ItemData->ItemAssetData;
 
-	ItemReference->ItemNumericData.bIsStacakable = ItemReference->ItemNumericData.MaxStackSize > 1;
-	InQuantity <= 0 ? ItemReference->SetQuantity(1) : ItemReference->SetQuantity(InQuantity);
+	Item->ItemNumericData.bIsStacakable = Item->ItemNumericData.MaxStackSize > 1;
+	InQuantity <= 0 ? Item->SetQuantity(1) : Item->SetQuantity(InQuantity);
 
 	PickupMesh->SetStaticMesh(ItemData->ItemAssetData.Mesh);
 
 	UpdateInteractableData();
 }
 
-void APickup::InitializeDrop(UItemBase* ItemToDrop, const int32 InQuantity)
+void APickup::InitializeDrop(UItemBase* ItemToDrop)
 {
-	ItemReference = ItemToDrop;
-	InQuantity <= 0 ? ItemReference->SetQuantity(1) : ItemReference->SetQuantity(InQuantity);
-	ItemReference->ItemNumericData.Weight = ItemToDrop->GetItemSingleWeight();
-	ItemReference->OwningInventory = nullptr;
+	Item = ItemToDrop;
+	Item->ItemNumericData.Weight = ItemToDrop->GetItemSingleWeight();
+	Item->OwningInventory = nullptr;
 	PickupMesh->SetStaticMesh(ItemToDrop->ItemAssetData.Mesh);
 
 	UpdateInteractableData();

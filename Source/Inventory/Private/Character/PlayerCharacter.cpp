@@ -9,7 +9,6 @@
 #include "InputActionValue.h"
 #include "UserInterface/InventoryHUD.h"
 #include "Components/InventoryComponent.h"
-#include "World/Pickup.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -48,26 +47,6 @@ void APlayerCharacter::UpdateInteractionWidget() const
 	if (IsValid(TargetInteractable.GetObject()))
 	{
 		HUD->UpdateInteractionWidget(&TargetInteractable->InteractableData);
-	}
-}
-
-void APlayerCharacter::DropItem(UItemBase* ItemToDrop, const int32 QuantityToDrop)
-{
-	if (PlayerInventory->FindMatchingItem(ItemToDrop))
-	{
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.Owner = this;
-		SpawnParams.bNoFail = true;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-
-		const FVector SpawnLocation = GetActorLocation() + GetActorForwardVector() * 100.f;
-		const FTransform SpawnTransform(GetActorRotation(), SpawnLocation);
-
-		const int32 RemovedQuantity = PlayerInventory->RemoveAmountOfItem(ItemToDrop, QuantityToDrop);
-
-		APickup* Pickup = GetWorld()->SpawnActor<APickup>(APickup::StaticClass(), SpawnTransform, SpawnParams);
-		Pickup->InitializeDrop(ItemToDrop, QuantityToDrop);
-
 	}
 }
 

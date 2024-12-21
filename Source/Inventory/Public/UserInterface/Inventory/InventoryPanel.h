@@ -13,6 +13,7 @@ class APlayerCharacter;
 class UInventoryComponent;
 class UCanvasPanelSlot;
 struct FInventoryLine;
+class USlateBrushAsset;
 
 UCLASS()
 class INVENTORY_API UInventoryPanel : public UUserWidget
@@ -47,7 +48,9 @@ public:
 	TSubclassOf<UInventoryItemSlot> InventorySlotClass;
 
 	UPROPERTY(EditDefaultsOnly)
-	float TileSize;
+	int32 TileSize;
+
+	int32 DraggedTopLeftIndex;
 
 private:
 
@@ -55,12 +58,20 @@ private:
 
 	UCanvasPanelSlot* GridBorderSlot;
 
+	bool DrawDropLocation = false;
+
+	USlateBrushAsset* SlateBrushAsset;
+
 protected:
 
 //	void SetInfoText() const;
 	void NativeOnInitialized() override;
 	void CreateLineSegments();
 	bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
+	bool NativeOnDragOver(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
 
 	int32 NativePaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const override;
+
+	void NativeOnDragEnter(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
+	void NativeOnDragLeave(const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
 };

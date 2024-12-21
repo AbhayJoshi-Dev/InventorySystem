@@ -3,6 +3,7 @@
 
 #include "Components/InventoryComponent.h"
 #include "Items/ItemBase.h"
+#include "World/Pickup.h"
 
 UInventoryComponent::UInventoryComponent()
 {
@@ -137,6 +138,47 @@ int32 UInventoryComponent::RemoveAmountOfItem(UItemBase* Item, int32 DesiredAmou
 	OnInventoryUpdated.Broadcast();
 
 	return ActualAmountToRemove;
+}
+
+void UInventoryComponent::RemoveItem(UItemBase* ItemToRemove)
+{
+	if (!InventoryContents.Contains(ItemToRemove)) return;
+
+	InventoryTotalWeight -= ItemToRemove->GetItemSingleWeight();
+
+	// TODO: could be done better
+	while (InventoryContents.Contains(ItemToRemove))
+	{
+		int32 index = InventoryContents.IndexOfByPredicate(
+			[&](const UItemBase* Item)
+			{
+				return Item == ItemToRemove;
+			}
+		);
+
+		InventoryContents[index] = nullptr;
+	}
+
+	OnInventoryUpdated.Broadcast();
+}
+
+void UInventoryComponent::DropItem(UItemBase* ItemToDrop)
+{
+
+	FActorSpawnParameters SpawnParams;
+	//SpawnParams.Owner = this;
+	SpawnParams.bNoFail = true;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+	//TODO: update drop spawn location based on inventory's owner, current setup is only for player
+	const FVector SpawnLocation = GetOwner()->GetActorLocation() + GetOwner()->GetActorForwardVector() * 100.f;
+	const FTransform SpawnTransform(GetOwner()->GetActorRotation(), SpawnLocation);
+
+	//removes content from inventory and broadcast to refresh inventory
+	RemoveItem(ItemToDrop);
+
+	APickup* Pickup = GetWorld()->SpawnActor<APickup>(APickup::StaticClass(), SpawnTransform, SpawnParams);
+	Pickup->InitializeDrop(ItemToDrop);
 }
 
 void UInventoryComponent::SplitExistingStack(UItemBase* Item, const int32 AmountToSplit)
@@ -324,6 +366,7 @@ void UInventoryComponent::AddNewItem(UItemBase* Item, int32 TopLeftIndex)
 	}
 
 	OnInventoryUpdated.Broadcast();
+	Item->OwningInventory = this;
 }
 
 //void UInventoryComponent::AddNewItem(UItemBase* Item, int32 AmountToAdd)
@@ -365,6 +408,8 @@ const bool UInventoryComponent::IsTileValid(FTile Tile) const
 	return (Tile.X >= 0 && Tile.Y >=0) && (Tile.X < Columns && Tile.Y < Rows);
 }
 
+UE_DISABLE_OPTIMIZATION
+
 bool UInventoryComponent::IsRoomAvailable(UItemBase* Item, int32 TopLeftIndex)
 {
 	const FTile Tile = IndexToTile(TopLeftIndex);
@@ -388,3 +433,4 @@ bool UInventoryComponent::IsRoomAvailable(UItemBase* Item, int32 TopLeftIndex)
 
 	return true;
 }
+UE_ENABLE_OPTIMIZATION

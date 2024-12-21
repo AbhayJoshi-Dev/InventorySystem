@@ -2,8 +2,8 @@
 
 
 #include "UserInterface/MainMenu.h"
-#include "Character/PlayerCharacter.h"
-#include "UserInterface/Inventory/ItemDragDropOperation.h"
+#include "Components/InventoryComponent.h"
+#include "Blueprint/DragDropOperation.h"
 #include "Items/ItemBase.h"
 
 void UMainMenu::NativeOnInitialized()
@@ -14,18 +14,23 @@ void UMainMenu::NativeOnInitialized()
 void UMainMenu::NativeConstruct()
 {
     Super::NativeConstruct();
-
-    PlayerCharacter = Cast<APlayerCharacter>(GetOwningPlayerPawn());
 }
 bool UMainMenu::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
-{
-    const UItemDragDropOperation* ItemDragDrop = Cast<UItemDragDropOperation>(InOperation);
-
-    if (PlayerCharacter && ItemDragDrop->SourceItem)
+{    
+    if (InOperation->Payload)
     {
-        PlayerCharacter->DropItem(ItemDragDrop->SourceItem, ItemDragDrop->SourceItem->Quantity);
-        return true;
+        if (UItemBase* Item = Cast<UItemBase>(InOperation->Payload))
+        {
+            Item->OwningInventory->DropItem(Item);
+            return true;
+        }
     }
+
+    //if (ItemDragDrop->SourceItem)
+    //{
+    //    ItemDragDrop->SourceInventory->DropItem(ItemDragDrop->SourceItem);
+    //    return true;
+    //}
 
     return false;
 }

@@ -27,6 +27,8 @@ public:
 	UFUNCTION()
 	FSlateBrush UpdateBrush();
 
+	FORCEINLINE FVector2D GetMousePosWhenDragged() const { return MousePosWhenDragged; }
+
 protected:
 
 	virtual void NativeConstruct() override;
@@ -58,4 +60,6 @@ private:
 	float TileSize;
 
 	FVector2D ItemSize;
+
+	FVector2D MousePosWhenDragged;
 };

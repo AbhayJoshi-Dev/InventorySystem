@@ -6,17 +6,10 @@
 #include "Blueprint/UserWidget.h"
 #include "MainMenu.generated.h"
 
-class APlayerCharacter;
-
 UCLASS()
 class INVENTORY_API UMainMenu : public UUserWidget
 {
 	GENERATED_BODY()
-	
-public:
-
-	UPROPERTY()
-	APlayerCharacter* PlayerCharacter;
 
 protected:
 

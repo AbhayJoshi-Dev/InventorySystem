@@ -21,9 +21,9 @@ public:
 
 	void InitializePickup(const TSubclassOf<UItemBase> BaseClass, const int32 InQuantity);
 
-	void InitializeDrop(UItemBase* ItemToDrop, const int32 InQuantity);
+	void InitializeDrop(UItemBase* ItemToDrop);
 
-	FORCEINLINE UItemBase* GetItemBase() { return ItemReference; }
+	FORCEINLINE UItemBase* GetItemBase() { return Item; }
 
 	void BeginFocus() override;
 	void EndFocus() override;
@@ -50,7 +50,7 @@ protected:
 	FDataTableRowHandle ItemRowHandle;
 
 	UPROPERTY(VisibleAnywhere, Category = "Pickup | Item Reference")
-	UItemBase* ItemReference;
+	UItemBase* Item;
 
 	UPROPERTY(EditInstanceOnly, Category = "Pickup | Item Initialization")
 	int32 ItemQuantity;
