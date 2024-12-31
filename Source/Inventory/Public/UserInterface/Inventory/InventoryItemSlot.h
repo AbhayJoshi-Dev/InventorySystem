@@ -29,7 +29,12 @@ public:
 
 	FORCEINLINE FVector2D GetMousePosWhenDragged() const { return MousePosWhenDragged; }
 
+	void RotateItem();
+
+
 protected:
+
+	void UpdateItemImage();
 
 	virtual void NativeConstruct() override;
 	virtual void NativeOnInitialized() override;

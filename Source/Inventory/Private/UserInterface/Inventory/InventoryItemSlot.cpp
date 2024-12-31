@@ -17,16 +17,8 @@ void UInventoryItemSlot::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	if (!Item) return;
 
-	ItemSize = Item->ItemNumericData.Dimensions * TileSize;
-
-	BackgroundSizeBox->SetWidthOverride(ItemSize.X);
-	BackgroundSizeBox->SetHeightOverride(ItemSize.Y);
-
-	UCanvasPanelSlot* ItemImageSlot = Cast<UCanvasPanelSlot>(ItemImage->Slot);
-	ItemImageSlot->SetSize(ItemSize);
-
+	UpdateItemImage();
 
 
 	//if (!Item) return;
@@ -76,7 +68,6 @@ void UInventoryItemSlot::NativeOnInitialized()
 	//}
 
 	ItemImage->BrushDelegate.BindUFunction(this, "UpdateBrush");
-
 }
 
 
@@ -135,8 +126,27 @@ bool UInventoryItemSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDr
 
 FSlateBrush UInventoryItemSlot::UpdateBrush()
 {
-	//TODO: create and return slatebrush with item icon image nad item image size
+	//TODO: create and return slatebrush with item icon image and item image size
 	//FSlateImageBrush brush(Item->ItemAssetData.Icon, ItemSize);
 
-	return FSlateImageBrush(Item->ItemAssetData.Icon, ItemSize);
+	return FSlateImageBrush(Item->GetIconImage(), ItemSize);
+}
+
+void UInventoryItemSlot::RotateItem()
+{
+	Item->Rotate();
+	UpdateItemImage();
+}
+
+void UInventoryItemSlot::UpdateItemImage()
+{
+	if (!Item) return;
+
+	ItemSize = Item->GetDimensions() * TileSize;
+
+	BackgroundSizeBox->SetWidthOverride(ItemSize.X);
+	BackgroundSizeBox->SetHeightOverride(ItemSize.Y);
+
+	UCanvasPanelSlot* ItemImageSlot = Cast<UCanvasPanelSlot>(ItemImage->Slot);
+	ItemImageSlot->SetSize(ItemSize);
 }

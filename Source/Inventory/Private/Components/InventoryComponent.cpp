@@ -356,10 +356,10 @@ void UInventoryComponent::AddNewItem(UItemBase* Item, int32 TopLeftIndex)
 	const FTile Tile = IndexToTile(TopLeftIndex);
 
 	//horizontal grid
-	for (int32 j = Tile.X; j < Tile.X + Item->ItemNumericData.Dimensions.X; j++)
+	for (int32 j = Tile.X; j < Tile.X + Item->GetDimensions().X; j++)
 	{
 		//vertical grid
-		for (int32 k = Tile.Y; k < Tile.Y + Item->ItemNumericData.Dimensions.Y; k++)
+		for (int32 k = Tile.Y; k < Tile.Y + Item->GetDimensions().Y; k++)
 		{
 			InventoryContents[TileToIndex(FTile(j, k))] = Item;
 		}
@@ -415,10 +415,10 @@ bool UInventoryComponent::IsRoomAvailable(UItemBase* Item, int32 TopLeftIndex)
 	const FTile Tile = IndexToTile(TopLeftIndex);
 
 	//horizontal grid
-	for (int32 j = Tile.X; j < Tile.X + Item->ItemNumericData.Dimensions.X; j++)
+	for (int32 j = Tile.X; j < Tile.X + Item->GetDimensions().X; j++)
 	{
 		//vertical grid
-		for (int32 k = Tile.Y; k < Tile.Y + Item->ItemNumericData.Dimensions.Y; k++)
+		for (int32 k = Tile.Y; k < Tile.Y + Item->GetDimensions().Y; k++)
 		{
 			if (!IsTileValid(FTile(j, k))) return false;
 

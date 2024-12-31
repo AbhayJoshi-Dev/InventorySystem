@@ -85,10 +85,16 @@ struct FItemAssetData
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere)
-	UTexture2D* Icon;
+	UMaterialInterface* Icon;
+
+	UPROPERTY(EditAnywhere)
+	UMaterialInterface* IconRotated;
 
 	UPROPERTY(EditAnywhere)
 	UStaticMesh* Mesh;
+
+	UPROPERTY(VisibleAnywhere)
+	bool bRotated;
 };
 
 USTRUCT()

@@ -161,7 +161,6 @@ UE_DISABLE_OPTIMIZATION
 
 bool UInventoryPanel::NativeOnDragOver(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
 {
-
 	UInventoryItemSlot* InventoryItemSlot = Cast<UInventoryItemSlot>(InOperation->DefaultDragVisual);
 	FVector2D MousePositionOnItemSlot = InventoryItemSlot->GetMousePosWhenDragged();
 
@@ -171,7 +170,7 @@ bool UInventoryPanel::NativeOnDragOver(const FGeometry& InGeometry, const FDragD
 	FVector2D TopLeftPosition(MouseLocalPosOnInventoryPanel.X - MousePositionOnItemSlot.X, MouseLocalPosOnInventoryPanel.Y - MousePositionOnItemSlot.Y);
 	
 	// clamping top left pos according to item dimensions, to prevent drop location drawing outside
-	FVector2D ItemDimensions = Cast<UItemBase>(InOperation->Payload)->ItemNumericData.Dimensions;
+	FVector2D ItemDimensions = Cast<UItemBase>(InOperation->Payload)->GetDimensions();
 	TopLeftPosition.X = FMath::Clamp(TopLeftPosition.X, 0.f, (InventoryComponent->GetRows() - ItemDimensions.X) * TileSize);
 	TopLeftPosition.Y = FMath::Clamp(TopLeftPosition.Y, 0.f, (InventoryComponent->GetColumns() - ItemDimensions.Y) * TileSize);
 
@@ -230,9 +229,7 @@ int32 UInventoryPanel::NativePaint(const FPaintArgs& Args, const FGeometry& Allo
 		Pos.X = FMath::Clamp(Pos.X, 0.f, InventoryComponent->GetRows() * TileSize);
 		Pos.Y = FMath::Clamp(Pos.Y, 0.f, InventoryComponent->GetColumns() * TileSize);
 
-	//	UE_LOG(LogTemp, Display, TEXT("Pos = (%f, %f)"), Pos.X, Pos.Y);
-
-		FVector2D Size(Item->ItemNumericData.Dimensions.X * TileSize, Item->ItemNumericData.Dimensions.Y * TileSize);
+		FVector2D Size(Item->GetDimensions().X * TileSize, Item->GetDimensions().Y * TileSize);
 
 		UWidgetBlueprintLibrary::DrawBox(Context,
 			Pos, 
@@ -259,3 +256,29 @@ void UInventoryPanel::NativeOnDragLeave(const FDragDropEvent& InDragDropEvent, U
 
 	DrawDropLocation = false;
 }
+
+UE_DISABLE_OPTIMIZATION
+FReply UInventoryPanel::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
+{
+	FReply Reply = Super::NativeOnKeyDown(InGeometry, InKeyEvent);
+
+	if (InKeyEvent.GetKey() == EKeys::R)
+	{
+		if (!UWidgetBlueprintLibrary::GetDragDroppingContent()) return Reply.Unhandled();
+
+		UDragDropOperation* DragDropOperation = UWidgetBlueprintLibrary::GetDragDroppingContent();
+
+		if (!DragDropOperation) return Reply.Unhandled();
+
+		if (UInventoryItemSlot* InventoryItemSlot = Cast<UInventoryItemSlot>(DragDropOperation->DefaultDragVisual))
+		{
+			InventoryItemSlot->RotateItem();
+
+			UE_LOG(LogTemp, Warning, TEXT("Angle Changed"));
+		}
+
+		return Reply.Handled();
+	}
+	return Reply.Unhandled();
+}
+UE_ENABLE_OPTIMIZATION

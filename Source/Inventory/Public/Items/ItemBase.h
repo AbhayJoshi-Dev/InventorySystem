@@ -65,7 +65,13 @@ public:
 	void SetQuantity(const int32 NewQuantity);
 	//UPROPERTY(Category = "Item")
 	//virtual void Use(APlayerCharacter* Character);
+
+	FORCEINLINE UMaterialInterface* GetIconImage() const { return (!ItemAssetData.bRotated) ? ItemAssetData.Icon : ItemAssetData.IconRotated; }
 	
+	FORCEINLINE FVector2D GetDimensions() const { return (!ItemAssetData.bRotated) ? ItemNumericData.Dimensions : FVector2D(ItemNumericData.Dimensions.Y, ItemNumericData.Dimensions.X); }
+
+	FORCEINLINE void Rotate() { ItemAssetData.bRotated = !ItemAssetData.bRotated; }
+
 protected:
 
 	bool operator == (const FName& OtherID) const 
