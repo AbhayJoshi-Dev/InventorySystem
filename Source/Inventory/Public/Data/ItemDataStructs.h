@@ -26,24 +26,6 @@ enum class EItemType : uint8
 };
 
 USTRUCT()
-struct FItemStatistics
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere)
-	float ArmorRating;
-
-	UPROPERTY(EditAnywhere)
-	float DamageValue;
-
-	UPROPERTY(EditAnywhere)
-	float RestorationAmount;
-
-	UPROPERTY(EditAnywhere)
-	float SellValue;
-};
-
-USTRUCT()
 struct FItemTextData
 {
 	GENERATED_BODY()
@@ -68,12 +50,6 @@ struct FItemNumericData
 
 	UPROPERTY(EditAnywhere)
 	float Weight;
-
-	UPROPERTY(EditAnywhere)
-	int32 MaxStackSize;
-
-	UPROPERTY()
-	bool bIsStacakable;
 
 	UPROPERTY(EditAnywhere)
 	FVector2D Dimensions;
@@ -110,9 +86,6 @@ struct FItemData : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, Category = "Item Data")
 	EItemQuality ItemQuality;
-
-	UPROPERTY(EditAnywhere, Category = "Item Data")
-	FItemStatistics ItemStatistics;
 
 	UPROPERTY(EditAnywhere, Category = "Item Data")
 	FItemTextData ItemTextData;

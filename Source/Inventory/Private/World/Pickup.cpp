@@ -21,7 +21,7 @@ void APickup::BeginPlay()
 {
 	Super::BeginPlay();
 
-	InitializePickup(UItemBase::StaticClass(), ItemQuantity);
+	InitializePickup();
 	
 }
 
@@ -37,7 +37,6 @@ void APickup::UpdateInteractableData()
 	InstanceInteractableData.InteractableType = EInteractableType::Pickup;
 	InstanceInteractableData.Action = Item->ItemTextData.InteractionText;
 	InstanceInteractableData.Name = Item->ItemTextData.Name;
-	InstanceInteractableData.Quantity = Item->Quantity;
 	InteractableData = InstanceInteractableData;
 }
 
@@ -53,25 +52,6 @@ void APickup::TakePickup(const APlayerCharacter* Taker)
 		{
 			Destroy();
 		}
-		/*switch (AddResult.OperationResult)
-		{
-		case EItemAddResult::IAR_NoItemAdded:
-			break;
-
-		case EItemAddResult::IAR_PartialAmountItemAdded:
-			UpdateInteractableData();
-			Taker->UpdateInteractionWidget();
-			break;
-
-		case EItemAddResult::IAR_AllItemAdded:
-			Destroy();
-			break;
-
-		default:
-			break;
-		}
-
-		UE_LOG(LogTemp, Warning, TEXT("%s"), *AddResult.ResultMessage.ToString());*/
 	}
 }
 
@@ -95,13 +75,13 @@ void APickup::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent
 #endif // WITH_EDITOR
 
 
-void APickup::InitializePickup(const TSubclassOf<UItemBase> BaseClass, const int32 InQuantity)
+void APickup::InitializePickup()
 {
 	if (ItemRowHandle.IsNull()) return;
 
 	const FItemData* ItemData = ItemRowHandle.GetRow<FItemData>(ItemRowHandle.RowName.ToString());
 
-	Item = NewObject<UItemBase>(this, BaseClass);
+	Item = NewObject<UItemBase>(this, UItemBase::StaticClass());
 
 	Item->ID = ItemData->ID;
 	Item->ItemType = ItemData->ItemType;
@@ -109,9 +89,6 @@ void APickup::InitializePickup(const TSubclassOf<UItemBase> BaseClass, const int
 	Item->ItemNumericData = ItemData->ItemNumericData;
 	Item->ItemTextData = ItemData->ItemTextData;
 	Item->ItemAssetData = ItemData->ItemAssetData;
-
-	Item->ItemNumericData.bIsStacakable = Item->ItemNumericData.MaxStackSize > 1;
-	InQuantity <= 0 ? Item->SetQuantity(1) : Item->SetQuantity(InQuantity);
 
 	PickupMesh->SetStaticMesh(ItemData->ItemAssetData.Mesh);
 
@@ -121,7 +98,7 @@ void APickup::InitializePickup(const TSubclassOf<UItemBase> BaseClass, const int
 void APickup::InitializeDrop(UItemBase* ItemToDrop)
 {
 	Item = ItemToDrop;
-	Item->ItemNumericData.Weight = ItemToDrop->GetItemSingleWeight();
+	Item->ItemNumericData.Weight = ItemToDrop->GetWeight();
 	Item->OwningInventory = nullptr;
 	PickupMesh->SetStaticMesh(ItemToDrop->ItemAssetData.Mesh);
 

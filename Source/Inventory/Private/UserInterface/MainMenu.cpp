@@ -26,11 +26,5 @@ bool UMainMenu::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& 
         }
     }
 
-    //if (ItemDragDrop->SourceItem)
-    //{
-    //    ItemDragDrop->SourceInventory->DropItem(ItemDragDrop->SourceItem);
-    //    return true;
-    //}
-
     return false;
 }

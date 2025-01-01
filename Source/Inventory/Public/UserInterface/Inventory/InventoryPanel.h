@@ -12,8 +12,15 @@ class UCanvasPanel;
 class APlayerCharacter;
 class UInventoryComponent;
 class UCanvasPanelSlot;
-struct FInventoryLine;
 class USlateBrushAsset;
+
+USTRUCT(BlueprintType)
+struct FInventoryLine
+{
+	GENERATED_BODY()
+	FVector2D Start;
+	FVector2D End;
+};
 
 UCLASS()
 class INVENTORY_API UInventoryPanel : public UUserWidget
@@ -34,9 +41,6 @@ public:
 
 	//UPROPERTY(meta = (BindWidget))
 	//UTextBlock* WeightInfo;
-
-	//UPROPERTY(meta = (BindWidget))
-	//UTextBlock* CapacityInfo;
 
 	UPROPERTY()
 	APlayerCharacter* PlayerCharacter;

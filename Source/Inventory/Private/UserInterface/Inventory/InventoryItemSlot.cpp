@@ -19,53 +19,11 @@ void UInventoryItemSlot::NativeConstruct()
 
 
 	UpdateItemImage();
-
-
-	//if (!Item) return;
-
-	//switch (Item->ItemQuality)
-	//{
-	//case EItemQuality::Shoddy:
-	//	ItemBorder->SetBrushColor(FLinearColor::Gray);
-	//	break;
-	//case EItemQuality::Common:
-	//	ItemBorder->SetBrushColor(FLinearColor::White);
-	//	break;
-	//case EItemQuality::Quality:
-	//	ItemBorder->SetBrushColor(FLinearColor::Green);
-	//	break;
-	//case EItemQuality::Masterwork:
-	//	ItemBorder->SetBrushColor(FLinearColor::Blue);
-	//	break;
-	//case EItemQuality::Grandmaster:
-	//	ItemBorder->SetBrushColor(FLinearColor::Red);
-	//	break;
-	//default:
-	//	break;
-	//}
-
-	//ItemIcon->SetBrushFromTexture(Item->ItemAssetData.Icon);
-
-	//if (Item->ItemNumericData.bIsStacakable)
-	//{
-	//	ItemQuantity->SetText(FText::AsNumber(Item->Quantity));
-	//}
-	//else
-	//{
-	//	ItemQuantity->SetVisibility(ESlateVisibility::Collapsed);
-	//}
 }
 
 void UInventoryItemSlot::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
-
-	//if (ToolTipClass)
-	//{
-	//	UInventoryToolTip* ToolTip = CreateWidget<UInventoryToolTip>(this, ToolTipClass);
-	//	ToolTip->InventorySlotBeingHovered = this;
-	//	SetToolTip(ToolTip);
-	//}
 
 	ItemImage->BrushDelegate.BindUFunction(this, "UpdateBrush");
 }
@@ -94,17 +52,8 @@ void UInventoryItemSlot::NativeOnDragDetected(const FGeometry& InGeometry, const
 	// store mouse position when drag detected, used for calculation drop location in InventoryPanel.cpp
 	MousePosWhenDragged = InGeometry.AbsoluteToLocal(InMouseEvent.GetScreenSpacePosition());
 
-	//if (!DragItemVisualClass) return;
-
-	//const TObjectPtr<UDragItemVisual> DragItemVisual = CreateWidget<UDragItemVisual>(this, DragItemVisualClass);
-	//DragItemVisual->ItemIcon->SetBrushFromTexture(Item->ItemAssetData.Icon);
-	//DragItemVisual->ItemBorder->SetBrushColor(ItemBorder->GetBrushColor());
-
-	//Item->ItemNumericData.bIsStacakable ? DragItemVisual->ItemQuantity->SetText(FText::AsNumber(Item->Quantity))
-	//											 : DragItemVisual->ItemQuantity->SetVisibility(ESlateVisibility::Collapsed);
-	
 	//test
-	UDragDropOperation* ItemDragOperation = NewObject< UDragDropOperation>();
+	UDragDropOperation* ItemDragOperation = NewObject<UDragDropOperation>();
 
 	ItemDragOperation->Payload = Item;
 

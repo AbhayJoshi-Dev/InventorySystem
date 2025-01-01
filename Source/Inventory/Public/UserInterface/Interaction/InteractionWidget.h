@@ -34,9 +34,6 @@ protected:
 	UTextBlock* ActionText;
 
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget))
-	UTextBlock* QuantityText;
-
-	UPROPERTY(VisibleAnywhere, meta = (BindWidget))
 	UTextBlock* KeyPressText;
 
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget))

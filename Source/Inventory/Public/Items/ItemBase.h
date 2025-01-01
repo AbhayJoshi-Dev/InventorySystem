@@ -19,9 +19,6 @@ public:
 	UInventoryComponent* OwningInventory;
 
 	UPROPERTY(VisibleAnywhere, Category = "Item Data")
-	int32 Quantity;
-
-	UPROPERTY(VisibleAnywhere, Category = "Item Data")
 	FName ID;
 
 	UPROPERTY(VisibleAnywhere, Category = "Item Data")
@@ -29,9 +26,6 @@ public:
 
 	UPROPERTY(VisibleAnywhere, Category = "Item Data")
 	EItemQuality ItemQuality;
-
-	UPROPERTY(VisibleAnywhere, Category = "Item Data")
-	FItemStatistics ItemStatistics;
 
 	UPROPERTY(VisibleAnywhere, Category = "Item Data")
 	FItemTextData ItemTextData;
@@ -53,16 +47,9 @@ public:
 	UItemBase* CreateItemCopy() const;
 
 	UFUNCTION(Category = "Item")
-	FORCEINLINE	float GetItemStackWeight() const { return Quantity * ItemNumericData.Weight; }
+	FORCEINLINE float GetWeight() const { return ItemNumericData.Weight; }
 
 	UFUNCTION(Category = "Item")
-	FORCEINLINE float GetItemSingleWeight() const { return ItemNumericData.Weight; }
-
-	UFUNCTION(Category = "Item")
-	FORCEINLINE bool IsFullItemStack() const { return Quantity == ItemNumericData.MaxStackSize; }
-
-	UFUNCTION(Category = "Item")
-	void SetQuantity(const int32 NewQuantity);
 	//UPROPERTY(Category = "Item")
 	//virtual void Use(APlayerCharacter* Character);
 

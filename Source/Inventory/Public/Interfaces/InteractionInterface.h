@@ -27,7 +27,6 @@ struct FInteractableData
 		InteractableType(EInteractableType::Pickup),
 		Name(FText::GetEmpty()),
 		Action(FText::GetEmpty()),
-		Quantity(0),
 		InteractionDuration(0.0f)
 	{
 
@@ -41,9 +40,6 @@ struct FInteractableData
 
 	UPROPERTY(EditInstanceOnly)
 	FText Action;
-
-	UPROPERTY(EditInstanceOnly)
-	int8 Quantity;
 
 	UPROPERTY(EditInstanceOnly)
 	float InteractionDuration;

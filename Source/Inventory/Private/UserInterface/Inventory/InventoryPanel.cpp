@@ -95,34 +95,12 @@ void UInventoryPanel::RefreshInventory()
 	}
 }
 
-//void UInventoryPanel::RefreshInventory()
-//{
-//	if (!InventoryComponent || !InventorySlotClass) return;
-//
-//	InventoryWrapBox->ClearChildren();
-//
-//	for (UItemBase* const& InventoryItem : InventoryComponent->GetInventoryContents())
-//	{
-//		UInventoryItemSlot* ItemSlot = CreateWidget<UInventoryItemSlot>(this, InventorySlotClass);
-//		ItemSlot->SetItemReference(InventoryItem);
-//			
-//		InventoryWrapBox->AddChildToWrapBox(ItemSlot);
-//	}
-//
-//	SetInfoText();
-//}
-
 //void UInventoryPanel::SetInfoText() const
 //{
 //	const FString WeightInfoValue = { FString::SanitizeFloat(InventoryComponent->GetInventoryTotalWeight()) + "/"
 //										+ FString::SanitizeFloat(InventoryComponent->GetWeightCapacity()) };
 //
 //	WeightInfo->SetText(FText::FromString(WeightInfoValue));
-//
-//	const FString CapacityInfoValue = { FString::FromInt(InventoryComponent->GetInventoryContents().Num()) + "/"
-//										+ FString::FromInt(InventoryComponent->GetSlotsCapacity()) };
-//
-//	CapacityInfo->SetText(FText::FromString(CapacityInfoValue));
 //}
 
 bool UInventoryPanel::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
@@ -148,16 +126,12 @@ bool UInventoryPanel::NativeOnDrop(const FGeometry& InGeometry, const FDragDropE
 			}
 		}
 
-
-		// add item 
-
 		return true;
 	}
 
 	return false;
 }
 
-UE_DISABLE_OPTIMIZATION
 
 bool UInventoryPanel::NativeOnDragOver(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
 {
@@ -190,9 +164,7 @@ bool UInventoryPanel::NativeOnDragOver(const FGeometry& InGeometry, const FDragD
 	return true;
 }
 
-UE_ENABLE_OPTIMIZATION
 
-UE_DISABLE_OPTIMIZATION
 int32 UInventoryPanel::NativePaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const
 {
 	Super::NativePaint(Args, AllottedGeometry, MyCullingRect, OutDrawElements, LayerId, InWidgetStyle, bParentEnabled);
@@ -241,7 +213,6 @@ int32 UInventoryPanel::NativePaint(const FPaintArgs& Args, const FGeometry& Allo
 	return LayerId + 1;
 }
 
-UE_ENABLE_OPTIMIZATION
 
 void UInventoryPanel::NativeOnDragEnter(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
 {
@@ -257,7 +228,6 @@ void UInventoryPanel::NativeOnDragLeave(const FDragDropEvent& InDragDropEvent, U
 	DrawDropLocation = false;
 }
 
-UE_DISABLE_OPTIMIZATION
 FReply UInventoryPanel::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
 {
 	FReply Reply = Super::NativeOnKeyDown(InGeometry, InKeyEvent);
@@ -281,4 +251,3 @@ FReply UInventoryPanel::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyE
 	}
 	return Reply.Unhandled();
 }
-UE_ENABLE_OPTIMIZATION

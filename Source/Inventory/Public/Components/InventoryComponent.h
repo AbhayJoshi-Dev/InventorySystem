@@ -10,15 +10,6 @@ DECLARE_MULTICAST_DELEGATE(FOnInventoryUpdated);
 
 class UItemBase;
 
-
-USTRUCT(BlueprintType)
-struct FInventoryLine
-{
-	GENERATED_BODY()
-	FVector2D Start;
-	FVector2D End;
-};
-
 USTRUCT(BlueprintType)
 struct FTile
 {
@@ -44,28 +35,10 @@ public:
 	bool HandleAddItem(UItemBase* Item);
 
 	UFUNCTION()
-	UItemBase* FindMatchingItem(UItemBase* Item) const;
-
-	UFUNCTION()
-	UItemBase* FindNextItemByID(UItemBase* Item) const;
-
-	UFUNCTION()
-	UItemBase* FindNextPartialStack(UItemBase* Item) const;
-
-	UFUNCTION()
-	void RemoveSingleInstanceOfItem(UItemBase* Item);
-
-	UFUNCTION()
-	int32 RemoveAmountOfItem(UItemBase* Item, int32 DesiredAmountToRemove);
-
-	UFUNCTION()
 	void RemoveItem(UItemBase* ItemToRemove);
 
 	UFUNCTION()
 	void DropItem(UItemBase* ItemToDrop);
-
-	UFUNCTION()
-	void SplitExistingStack(UItemBase* Item, const int32 AmountToSplit);
 
 	TMap<UItemBase*, FTile> GetUniqueItems();
 
