@@ -66,6 +66,8 @@ private:
 
 	USlateBrushAsset* SlateBrushAsset;
 
+	FVector2D MousePositionOnGrid;
+
 protected:
 
 //	void SetInfoText() const;
@@ -80,4 +82,6 @@ protected:
 	void NativeOnDragLeave(const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) override;
 
 	FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
+
+	FReply NativeOnMouseMove(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 };

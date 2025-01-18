@@ -70,6 +70,10 @@ public:
 
 	void AddNewItem(UItemBase* Item, int32 TopLeftIndex);
 
+	FORCEINLINE UItemBase* GetItemAtTile(FTile Tile) { return InventoryContents[TileToIndex(Tile)]; }
+
+	FTile GetTopLeftTileOfItem(UItemBase* Item);
+
 protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")

@@ -5,7 +5,7 @@
 #include "Character/PlayerCharacter.h"
 #include "Components/InventoryComponent.h"
 #include "Components/Border.h"
-#include "Blueprint/DragDropOperation.h"
+#include "UserInterface/Inventory/ItemDragDropOperation.h"
 #include "Components/CanvasPanelSlot.h"
 #include "Components/CanvasPanel.h"
 #include "Items/ItemBase.h"
@@ -15,6 +15,9 @@
 #include "Slate/SlateBrushAsset.h"
 
 #include "UserInterface/Inventory/InventoryItemSlot.h"
+#include "Kismet/GameplayStatics.h"
+
+#include "UserInterface/Inventory/DragItemVisual.h"
 
 void UInventoryPanel::NativeOnInitialized()
 {
@@ -135,14 +138,13 @@ bool UInventoryPanel::NativeOnDrop(const FGeometry& InGeometry, const FDragDropE
 
 bool UInventoryPanel::NativeOnDragOver(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
 {
-	UInventoryItemSlot* InventoryItemSlot = Cast<UInventoryItemSlot>(InOperation->DefaultDragVisual);
-	FVector2D MousePositionOnItemSlot = InventoryItemSlot->GetMousePosWhenDragged();
+//UDragItemVisual* DragItemVisual = Cast<UDragItemVisual>(InOperation->DefaultDragVisual);
+//	FVector2D MousePositionOnItemSlot = DragItemVisual->GetMousePosWhenDragged();
 
-	FVector2D MouseLocalPosOnInventoryPanel = InGeometry.AbsoluteToLocal(InDragDropEvent.GetScreenSpacePosition());
-
+	MousePositionOnGrid = InGeometry.AbsoluteToLocal(InDragDropEvent.GetScreenSpacePosition());
 	
-	FVector2D TopLeftPosition(MouseLocalPosOnInventoryPanel.X - MousePositionOnItemSlot.X, MouseLocalPosOnInventoryPanel.Y - MousePositionOnItemSlot.Y);
-	
+	FVector2D TopLeftPosition(MousePositionOnGrid.X, MousePositionOnGrid.Y);
+		
 	// clamping top left pos according to item dimensions, to prevent drop location drawing outside
 	FVector2D ItemDimensions = Cast<UItemBase>(InOperation->Payload)->GetDimensions();
 	TopLeftPosition.X = FMath::Clamp(TopLeftPosition.X, 0.f, (InventoryComponent->GetRows() - ItemDimensions.X) * TileSize);
@@ -158,8 +160,10 @@ bool UInventoryPanel::NativeOnDragOver(const FGeometry& InGeometry, const FDragD
 	P.X = (Mod.X > TileSize / 2) ? 1 : 0;
 	P.Y = (Mod.Y > TileSize / 2) ? 1 : 0;
 	
+	// TODO: currently calculated DraggedTopLeftIndex will be zero
 	FIntPoint TopLeftTile(TopLeftPosition.X / TileSize + P.X, TopLeftPosition.Y / TileSize + P.Y);
 	DraggedTopLeftIndex = InventoryComponent->TileToIndex({ TopLeftTile.X, TopLeftTile.Y });
+
 
 	return true;
 }
@@ -202,7 +206,7 @@ int32 UInventoryPanel::NativePaint(const FPaintArgs& Args, const FGeometry& Allo
 		Pos.Y = FMath::Clamp(Pos.Y, 0.f, InventoryComponent->GetColumns() * TileSize);
 
 		FVector2D Size(Item->GetDimensions().X * TileSize, Item->GetDimensions().Y * TileSize);
-
+		UWidgetBlueprintLibrary::SetBrushResourceToMaterial(SlateBrushAsset->Brush, nullptr);
 		UWidgetBlueprintLibrary::DrawBox(Context,
 			Pos, 
 			Size,
@@ -210,6 +214,57 @@ int32 UInventoryPanel::NativePaint(const FPaintArgs& Args, const FGeometry& Allo
 			Tint);
 	}
 
+	FVector2D ClampedPosition = MousePositionOnGrid;
+	if (UWidgetBlueprintLibrary::IsDragDropping() && DrawDropLocation)
+	{
+		// clamping top left pos according to item dimensions, to prevent drop location drawing outside
+		FVector2D ItemDimensions = Cast<UItemBase>(UWidgetBlueprintLibrary::GetDragDroppingContent()->Payload)->GetDimensions();
+		ClampedPosition.X = FMath::Clamp(ClampedPosition.X, 0.f, (InventoryComponent->GetRows() - ItemDimensions.X) * TileSize);
+		ClampedPosition.Y = FMath::Clamp(ClampedPosition.Y, 0.f, (InventoryComponent->GetColumns() - ItemDimensions.Y) * TileSize);
+	}
+
+
+	//draw item image tile box
+	
+	FTile Tile(ClampedPosition.X / TileSize, ClampedPosition.Y / TileSize);
+	FVector2D Size(TileSize, TileSize);
+	FLinearColor Tint(1.f, 1.f, 1.f, 1.f);
+
+
+
+	FIntPoint Mod((int32)ClampedPosition.X % TileSize, (int32)ClampedPosition.Y % TileSize);
+
+	FIntPoint P(0, 0);
+
+	P.X = (Mod.X > TileSize / 2) ? 1 : 0;
+	P.Y = (Mod.Y > TileSize / 2) ? 1 : 0;
+
+	// draw image if dragging
+	if (UWidgetBlueprintLibrary::IsDragDropping() && DrawDropLocation)
+	{
+		UItemBase* Item = Cast<UItemBase>(UWidgetBlueprintLibrary::GetDragDroppingContent()->Payload);
+
+
+		// test draw item icon image
+		UWidgetBlueprintLibrary::SetBrushResourceToMaterial(SlateBrushAsset->Brush, Item->GetIconImage());
+		UWidgetBlueprintLibrary::DrawBox(Context, FVector2D((Tile.X + P.X) * TileSize, (Tile.Y + P.Y) * TileSize), Item->GetDimensions() * TileSize, SlateBrushAsset, Tint);
+
+	}
+	// draw transparent white tile if not dragging
+	else
+	{
+		if (UItemBase* ItemAtMouseTile = InventoryComponent->GetItemAtTile(Tile))
+		{
+			Tile = InventoryComponent->GetTopLeftTileOfItem(ItemAtMouseTile);
+			Size *= ItemAtMouseTile->GetDimensions();
+		}
+
+		// draw white mouse follow tile
+		UWidgetBlueprintLibrary::SetBrushResourceToMaterial(SlateBrushAsset->Brush, nullptr);
+		UWidgetBlueprintLibrary::DrawBox(Context, FVector2D(Tile.X * TileSize, Tile.Y * TileSize), Size, SlateBrushAsset, FLinearColor(1.f, 1.f, 1.f, 0.25f));
+	}
+
+	
 	return LayerId + 1;
 }
 
@@ -228,6 +283,8 @@ void UInventoryPanel::NativeOnDragLeave(const FDragDropEvent& InDragDropEvent, U
 	DrawDropLocation = false;
 }
 
+UE_DISABLE_OPTIMIZATION
+
 FReply UInventoryPanel::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
 {
 	FReply Reply = Super::NativeOnKeyDown(InGeometry, InKeyEvent);
@@ -240,14 +297,27 @@ FReply UInventoryPanel::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyE
 
 		if (!DragDropOperation) return Reply.Unhandled();
 
-		if (UInventoryItemSlot* InventoryItemSlot = Cast<UInventoryItemSlot>(DragDropOperation->DefaultDragVisual))
-		{
-			InventoryItemSlot->RotateItem();
 
-			UE_LOG(LogTemp, Warning, TEXT("Angle Changed"));
+		if (UItemDragDropOperation* ItemDragDropOperation = Cast<UItemDragDropOperation>(DragDropOperation))
+		{
+			if (UInventoryItemSlot* InventoryItemSlot = Cast<UInventoryItemSlot>(ItemDragDropOperation->ItemSlot))
+			{
+				InventoryItemSlot->RotateItem();
+				return Reply.Handled();
+			}
 		}
 
-		return Reply.Handled();
 	}
 	return Reply.Unhandled();
+}
+
+UE_ENABLE_OPTIMIZATION
+
+FReply UInventoryPanel::NativeOnMouseMove(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+	FReply Reply = Super::NativeOnMouseMove(InGeometry, InMouseEvent);
+
+	MousePositionOnGrid = InGeometry.AbsoluteToLocal(InMouseEvent.GetScreenSpacePosition());
+
+	return Reply;
 }

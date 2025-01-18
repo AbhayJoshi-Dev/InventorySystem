@@ -10,7 +10,7 @@
 #include "UserInterface/Inventory/DragItemVisual.h"
 #include "Components/SizeBox.h"
 #include "Components/CanvasPanelSlot.h"
-#include "Blueprint/DragDropOperation.h"
+#include "UserInterface/Inventory/ItemDragDropOperation.h"
 #include "Components/InventoryComponent.h"
 
 void UInventoryItemSlot::NativeConstruct()
@@ -31,6 +31,8 @@ void UInventoryItemSlot::NativeOnInitialized()
 
 FReply UInventoryItemSlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
+	UE_LOG(LogTemp, Display, TEXT("Button Down"));
+
 	FReply Reply =  Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
 
 	if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
@@ -49,16 +51,26 @@ void UInventoryItemSlot::NativeOnDragDetected(const FGeometry& InGeometry, const
 {
 	Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
 
-	// store mouse position when drag detected, used for calculation drop location in InventoryPanel.cpp
-	MousePosWhenDragged = InGeometry.AbsoluteToLocal(InMouseEvent.GetScreenSpacePosition());
-
 	//test
-	UDragDropOperation* ItemDragOperation = NewObject<UDragDropOperation>();
+	UItemDragDropOperation* ItemDragOperation = NewObject<UItemDragDropOperation>();
 
 	ItemDragOperation->Payload = Item;
 
-	ItemDragOperation->DefaultDragVisual = this;
+	// create item drag visual
+
+//	const TObjectPtr<UDragItemVisual> DragItemVisual = CreateWidget<UDragItemVisual>(this, DragItemVisualClass);
+
+	//DragItemVisual->ItemIcon->SetBrushFromMaterial(Item->GetIconImage());
+	//DragItemVisual->SetImageAndSize(Item->GetIconImage(), ItemSize);
+	//DragItemVisual->BackgroundBorder->SetBrushColor(FLinearColor(0.f, 0.f, 0.f, 0.2f));
+
+
+	
+	ItemDragOperation->ItemSlot = this;
 	ItemDragOperation->Pivot = EDragPivot::MouseDown;
+//	ItemDragOperation->Offset = FVector2D(0.2f, -0.2f);
+
+	BackgroundBorder->SetBrushColor(FLinearColor(0.f, 0.f, 0.f, 0.5f));
 
 	Item->OwningInventory->RemoveItem(Item);
 
@@ -95,6 +107,8 @@ void UInventoryItemSlot::UpdateItemImage()
 
 	BackgroundSizeBox->SetWidthOverride(ItemSize.X);
 	BackgroundSizeBox->SetHeightOverride(ItemSize.Y);
+
+	BackgroundBorder->SetBrushColor(FLinearColor(0.f, 0.f, 0.f, 0.5f));
 
 	UCanvasPanelSlot* ItemImageSlot = Cast<UCanvasPanelSlot>(ItemImage->Slot);
 	ItemImageSlot->SetSize(ItemSize);

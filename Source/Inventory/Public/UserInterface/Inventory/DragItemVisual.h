@@ -9,6 +9,7 @@
 class UBorder;
 class UImage;
 class UTextBlock;
+class USizeBox;
 
 UCLASS()
 class INVENTORY_API UDragItemVisual : public UUserWidget
@@ -18,9 +19,31 @@ class INVENTORY_API UDragItemVisual : public UUserWidget
 public:
 
 	UPROPERTY(VisibleAnywhere, Category = "Drag Item Visual", meta = (BindWidget))
-	UBorder* ItemBorder;
+	UBorder* BackgroundBorder;
 
 	UPROPERTY(VisibleAnywhere, Category = "Drag Item Visual", meta = (BindWidget))
 	UImage* ItemIcon;
+
+	UPROPERTY(VisibleAnywhere, Category = "Drag Item Visual", meta = (BindWidget))
+	USizeBox* BackgroundSizeBox;
+
+public:
+
+	FORCEINLINE FVector2D GetMousePosWhenDragged() const { return MousePosWhenDragged; }
+
+	void SetImageAndSize(UMaterialInterface* Image, FVector2D Size);
+
+protected:
+	virtual void NativeOnInitialized() override;
+
+	virtual void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation) override;
 	
+	UFUNCTION()
+	FSlateBrush UpdateBrush();
+private:
+
+	FVector2D MousePosWhenDragged;
+
+	UMaterialInterface* ImageMaterial;
+	FVector2D ImageSize;
 };

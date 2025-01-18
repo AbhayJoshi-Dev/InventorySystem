@@ -129,6 +129,20 @@ void UInventoryComponent::AddNewItem(UItemBase* Item, int32 TopLeftIndex)
 	Item->OwningInventory = this;
 }
 
+FTile UInventoryComponent::GetTopLeftTileOfItem(UItemBase* Item)
+{
+	// TODO: this method of finding top left tile might give errors, its finds first tile and return
+	for (int32 i = 0; i < InventoryContents.Max(); i++)
+	{
+		if (InventoryContents[i] == Item)
+		{
+			return IndexToTile(i);
+		}
+	}
+
+	return FTile();
+}
+
 const FTile UInventoryComponent::IndexToTile(int32 Index) const
 {
 	return FTile( Index % Columns, Index / Columns);

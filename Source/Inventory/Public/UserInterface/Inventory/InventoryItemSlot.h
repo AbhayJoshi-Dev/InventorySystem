@@ -11,6 +11,7 @@ class UDragItemVisual;
 class UImage;
 class UItemBase;
 class USizeBox;
+class UBorder;
 
 UCLASS()
 class INVENTORY_API UInventoryItemSlot : public UUserWidget
@@ -26,8 +27,6 @@ public:
 
 	UFUNCTION()
 	FSlateBrush UpdateBrush();
-
-	FORCEINLINE FVector2D GetMousePosWhenDragged() const { return MousePosWhenDragged; }
 
 	void RotateItem();
 
@@ -58,6 +57,9 @@ protected:
 	USizeBox* BackgroundSizeBox;
 
 	UPROPERTY(meta = (BindWidget))
+	UBorder* BackgroundBorder;
+
+	UPROPERTY(meta = (BindWidget))
 	UImage* ItemImage;
 
 private:
@@ -65,6 +67,4 @@ private:
 	float TileSize;
 
 	FVector2D ItemSize;
-
-	FVector2D MousePosWhenDragged;
 };
