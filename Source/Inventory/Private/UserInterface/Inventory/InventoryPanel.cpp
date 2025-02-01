@@ -253,6 +253,8 @@ int32 UInventoryPanel::NativePaint(const FPaintArgs& Args, const FGeometry& Allo
 	// draw transparent white tile if not dragging
 	else
 	{
+		if (!InventoryComponent) return LayerId + 1;
+
 		if (UItemBase* ItemAtMouseTile = InventoryComponent->GetItemAtTile(Tile))
 		{
 			Tile = InventoryComponent->GetTopLeftTileOfItem(ItemAtMouseTile);
