@@ -9,6 +9,7 @@
 class UMainMenu;
 class UInteractionWidget;
 struct FInteractableData;
+class UUserWidget;
 
 UCLASS()
 class INVENTORY_API AInventoryHUD : public AHUD
@@ -35,6 +36,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 	TSubclassOf<UInteractionWidget> InteractionWidgetClass;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+	TSubclassOf<UUserWidget> CrosshairWidgetClass;
+
 	bool bIsMenuVisible;
 
 
@@ -49,4 +53,7 @@ protected:
 
 	UPROPERTY()
 	UInteractionWidget* InteractionWidget;
+
+	UPROPERTY()
+	UUserWidget* CrosshairWidget;
 };

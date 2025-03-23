@@ -75,14 +75,12 @@ void APlayerCharacter::PerformInteractionCheck()
 {
 	InteractionData.LastInteractionCheckTime = GetWorld()->GetTimeSeconds();
 
-	FVector TraceStart = GetPawnViewLocation();
-	FVector TraceEnd = TraceStart + GetViewRotation().Vector() * InteractionCheckDistance;
+	FVector TraceStart = CameraComponent->GetComponentLocation();
+	FVector TraceEnd = TraceStart + CameraComponent->GetForwardVector() * InteractionCheckDistance;
 
 	FCollisionQueryParams QueryParms;
 	QueryParms.AddIgnoredActor(this);
 	FHitResult HitResult;
-
-	DrawDebugLine(GetWorld(), TraceStart - FVector(0.f, 0.f, 10.0f), TraceEnd, FColor::Red, false, 1.0f);
 
 	if (GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECollisionChannel::ECC_Visibility, QueryParms))
 	{

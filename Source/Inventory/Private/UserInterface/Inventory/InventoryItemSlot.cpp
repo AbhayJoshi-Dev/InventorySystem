@@ -68,7 +68,6 @@ void UInventoryItemSlot::NativeOnDragDetected(const FGeometry& InGeometry, const
 	
 	ItemDragOperation->ItemSlot = this;
 	ItemDragOperation->Pivot = EDragPivot::MouseDown;
-//	ItemDragOperation->Offset = FVector2D(0.2f, -0.2f);
 
 	BackgroundBorder->SetBrushColor(FLinearColor(0.f, 0.f, 0.f, 0.5f));
 

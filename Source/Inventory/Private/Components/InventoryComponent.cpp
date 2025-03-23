@@ -174,8 +174,6 @@ bool UInventoryComponent::IsRoomAvailable(UItemBase* Item, int32 TopLeftIndex)
 
 			// no room available on the tile
 			if (InventoryContents[index]) return false;
-
-
 		}
 	}
 

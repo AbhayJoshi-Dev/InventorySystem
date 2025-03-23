@@ -176,10 +176,11 @@ int32 UInventoryPanel::NativePaint(const FPaintArgs& Args, const FGeometry& Allo
 	// draw inventory grid lines
 	FPaintContext Context(AllottedGeometry, MyCullingRect, OutDrawElements, LayerId, InWidgetStyle, bParentEnabled);
 
+	//TODO: remove Lines array and calculate lines pos here
+
 	for (int i = 0; i < Lines.Num(); i++)
 	{
-		FVector2D TopLeftposition{ 0, 0 };
-		UWidgetBlueprintLibrary::DrawLine(Context, TopLeftposition + Lines[i].Start, TopLeftposition + Lines[i].End, FLinearColor(FVector4d(0.5f, 0.5f, 0.5f, 0.5f)));
+		UWidgetBlueprintLibrary::DrawLine(Context, Lines[i].Start, Lines[i].End, FLinearColor(0.5f, 0.5f, 0.5f, 0.5f));
 	}
 
 
