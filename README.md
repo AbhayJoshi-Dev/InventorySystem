@@ -1,6 +1,6 @@
 ## Inventory System
 
-A grid based Inventory System written in C++ in Unreal Engine 5
+A grid based Inventory System written in C++ in Unreal Engine 5. This project was developed for the purpose of learning Unreal Engine.
 
 ![](https://i.imgur.com/ZCVaVCp.gif)
 
